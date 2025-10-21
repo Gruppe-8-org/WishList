@@ -1,14 +1,14 @@
 package com.wishlist.Model;
 
-import org.springframework.jdbc.core.RowMapper;
-
 public class Product {
+    private int ID;
     private String title;
     private String manufacturer;
     private String pathToImage;
     private double price;
 
-    public Product(String title, String manufacturer, String pathToImage, double price) {
+    public Product(int ID, String title, String manufacturer, String pathToImage, double price) {
+        this.ID = ID;
         this.title = title;
         this.manufacturer = manufacturer;
         this.pathToImage = pathToImage;
@@ -45,5 +45,13 @@ public class Product {
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    public int getID() {
+        return ID;
+    }
+
+    public void setID(int ID) {
+        this.ID = ID;
     }
 }
