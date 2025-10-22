@@ -62,9 +62,21 @@ public class WishlistRepository {
     public List<Wishlist> getAllWishlistsUserIsInvitedTo(int userID) {
         return jdbcTemplate.queryForList("SELECT Wishlists.ID, Wishlists.Title, Wishlists.AuthorID, Wishlists.HeldOn, Products.Title, Products.Price, Products.Manufacturer, Products.PathToImage, WishlistProducts.Reserved\n" +
                 "FROM Wishlists \n" +
-                "JOIN WishlistGuests ON Wishlists.ID = WishlistGuests.WishlistID\n" + // This does the filtering
+                "JOIN WishlistGuests ON Wishlists.ID = WishlistGuests.WishlistID\n" +
                 "LEFT JOIN WishlistProducts ON Wishlists.ID = WishlistProducts.WishlistID \n" +
                 "LEFT JOIN Products ON WishlistProducts.ProductID = Products.ID\n" +
                 "WHERE WishlistGuests.UserID = ?;", Wishlist.class, userID);
+    }
+
+    // ToDo: Verify that cascading works as expected
+    // (Entries in corresponding junction tables should also be removed)
+    public int deleteWishlistByID(int wishlistID) {
+        return jdbcTemplate.update("DELETE FROM Wishlists WHERE ID = ?;", wishlistID);
+    }
+
+    // ToDo: Verify that cascading works as expected
+    // (Entries in corresponding junction tables should also be removed)
+    public int deleteWishlistsByUser(int userID) {
+        return jdbcTemplate.update("DELETE FROM Wishlists WHERE AuthorID = ?", userID);
     }
 }
