@@ -1,11 +1,13 @@
 package com.wishlist.Repository;
 
 import com.wishlist.Model.User;
-import com.wishlist.Model.UserRowMapper;
+import com.wishlist.RowMappers.UserRowMapper;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class UserRepository {
     @Value("${spring.datasource.url}")
     private String dbURL;
@@ -25,17 +27,17 @@ public class UserRepository {
     }
 
     public int addUser(User user) {
-        return jdbcTemplate.update("INSERT IGNORE INTO Users (Name, Username, Password) VALUES (?, ?, ?);",
+        return jdbcTemplate.update("INSERT IGNORE INTO Users (User_Name, Username, Password) VALUES (?, ?, ?);",
                 user.getName(), user.getUsername(), user.getPassword());
     }
 
     // Todo: Select which one we'll use when templates are done.
     public int deleteUser(User user) {
-        return jdbcTemplate.update("DELETE FROM Users WHERE ID = ?;", user.getID());
+        return jdbcTemplate.update("DELETE FROM Users WHERE UserID = ?;", user.getID());
     }
 
     public int deleteUserByID(int userID) {
-        return jdbcTemplate.update("DELETE FROM Users WHERE ID = ?;", userID);
+        return jdbcTemplate.update("DELETE FROM Users WHERE UserID = ?;", userID);
     }
 
     public boolean isLoggedIn(HttpSession session) {

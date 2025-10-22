@@ -1,12 +1,12 @@
 USE WishList;
 
-INSERT INTO Users (ID, Name, Username, Password) VALUES 
+INSERT INTO Users (UserID, User_Name, Username, Password) VALUES 
 	(1, 'Markus', 'marqs69', '12345678'), (2, 'Max', 'bigdawg', '87654321'), (3, 'Max-Emil', 'lildawg', '01101001');
     
-INSERT INTO Wishlists (ID, AuthorID, Title, HeldOn) VALUES 
+INSERT INTO Wishlists (WishlistID, AuthorID, WishlistTitle, HeldOn) VALUES 
 	(1, 1, 'Fødselsdag', '20251029'), (2, 2, 'Fødselsdag', '20251029'), (3, 3, 'Fødselsdag', '20251029');
     
-INSERT INTO Products (ID, Title, Price, Manufacturer, PathToImage) VALUES 
+INSERT INTO Products (ProductID, ProductTitle, ProductPrice, ProductManufacturer, ProductPathToImage) VALUES 
 	(1, 'Lego Botanicals - Bonsai Tree', 449.95, 'Lego', 'resources/static/lego_bonsai.png'),
     (2, 'Lego Architecture - Fallingwater', 749.95, 'Lego', 'resources/static/lego_fallingwater.png'),
     (3, 'Spotify Årskort', 1500.0, 'Spotify', 'resources/static/spotify_logo.png'),

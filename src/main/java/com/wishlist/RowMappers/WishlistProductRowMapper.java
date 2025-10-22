@@ -1,5 +1,7 @@
-package com.wishlist.Model;
+package com.wishlist.RowMappers;
 
+import com.wishlist.Model.Product;
+import com.wishlist.Model.WishlistProduct;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 

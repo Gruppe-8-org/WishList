@@ -1,11 +1,14 @@
-package com.wishlist.Model;
+package com.wishlist.RowMappers;
 
+import com.wishlist.Model.Wishlist;
+import com.wishlist.Model.WishlistProduct;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Component // Annotation creates bean for DI in Repository.
@@ -18,18 +21,22 @@ public class WishlistRowMapper implements RowMapper<Wishlist> {
 
     @Override
     public Wishlist mapRow(ResultSet rs, int rowNum) throws SQLException {
-        List<WishlistProduct> products = new ArrayList<WishlistProduct>();
+        List<WishlistProduct> products = new ArrayList<>();
+        int wishlistID = rs.getInt("WishlistID");
+        String wishlistTitle = rs.getString("WishlistTitle");
+        int wishlistAuthorID = rs.getInt("AuthorID");
+        Date wishlistHeldOn = rs.getDate("HeldOn");
 
         do {
             WishlistProduct wishlistProduct = wishlistProductRowMapper.mapRow(rs, rowNum);
 
-            if (wishlistProduct.getProduct() != null) {
+            if (wishlistProduct != null) {
                 products.add(wishlistProduct);
             }
 
             rowNum++;
-        } while (rs.next());
+        } while (rs.next() && rs.getInt("WishlistID") == wishlistID);
 
-        return new Wishlist(rs.getInt("ID"), rs.getString("Title"), rs.getInt("AuthorID"), rs.getDate("HeldOn"), products);
+        return new Wishlist(wishlistID, wishlistTitle, wishlistAuthorID, wishlistHeldOn, products);
     }
 }

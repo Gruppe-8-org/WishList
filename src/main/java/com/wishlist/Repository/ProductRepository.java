@@ -1,12 +1,14 @@
 package com.wishlist.Repository;
 
 import com.wishlist.Model.Product;
-import com.wishlist.Model.ProductRowMapper;
+import com.wishlist.RowMappers.ProductRowMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public class ProductRepository {
     @Value("${spring.datasource.url}")
     private String dbURL;
@@ -26,15 +28,15 @@ public class ProductRepository {
     }
 
     public List<Product> getAllProducts() {
-        return jdbcTemplate.queryForList("SELECT * FROM Products", Product.class);
+        return jdbcTemplate.query("SELECT * FROM Products", productRowMapper);
     }
 
     public Product getProductByID(int productID) {
-        return jdbcTemplate.queryForObject("SELECT * FROM Products WHERE ID = ?", Product.class, productID);
+        return jdbcTemplate.queryForObject("SELECT * FROM Products WHERE ProductID = ?", productRowMapper, productID);
     }
 
     public int addProduct(Product product) {
-        return jdbcTemplate.update("INSERT IGNORE INTO Products (ID, Title, Manufacturer, PathToImage, Price) VALUES (?, ?, ?, ?, ?)",
+        return jdbcTemplate.update("INSERT IGNORE INTO Products (ProductID, ProductTitle, ProductManufacturer, ProductPathToImage, ProductPrice) VALUES (?, ?, ?, ?, ?)",
                 product.getID(), product.getTitle(), product.getManufacturer(), product.getPathToImage(), product.getPrice());
     }
 
@@ -45,6 +47,6 @@ public class ProductRepository {
     }
 
     public int deleteProductByID(int productID) {
-        return jdbcTemplate.update("DELETE FROM Products WHERE ID = ?", productID);
+        return jdbcTemplate.update("DELETE FROM Products WHERE ProductID = ?", productID);
     }
 }

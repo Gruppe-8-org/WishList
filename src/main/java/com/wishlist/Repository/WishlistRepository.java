@@ -1,11 +1,16 @@
 package com.wishlist.Repository;
 
 import com.wishlist.Model.*;
+import com.wishlist.RowMappers.ProductRowMapper;
+import com.wishlist.RowMappers.WishlistProductRowMapper;
+import com.wishlist.RowMappers.WishlistRowMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public class WishlistRepository {
     @Value("${spring.datasource.url}")
     private String dbURL;
@@ -19,18 +24,18 @@ public class WishlistRepository {
     protected final JdbcTemplate jdbcTemplate;
     protected final WishlistRowMapper wishlistRowMapper;
 
-    public WishlistRepository(JdbcTemplate jdbcTemplate, WishlistRowMapper wishlistRowMapper) {
+    public WishlistRepository(JdbcTemplate jdbcTemplate, WishlistRowMapper wishlistRowMapper, WishlistProductRowMapper wishlistProductRowMapper, ProductRowMapper productRowMapper) {
         this.jdbcTemplate = jdbcTemplate;
         this.wishlistRowMapper = wishlistRowMapper;
     }
 
     public void addWishlist(Wishlist wishlist, List<User> guests) {
-        jdbcTemplate.update("INSERT IGNORE INTO Wishlists (AuthorID, Title, HeldOn) VALUES (?, ?, ?);",
+        jdbcTemplate.update("INSERT IGNORE INTO Wishlists (AuthorID, WishlistTitle, HeldOn) VALUES (?, ?, ?);",
                 wishlist.getAuthorID(), wishlist.getTitle(), wishlist.getHeldOn());
 
         for (WishlistProduct wp : wishlist.getProducts()) {
             Product theProduct = wp.getProduct();
-            jdbcTemplate.update("INSERT IGNORE INTO Products (Title, Price, Manufacturer, PathToImage) VALUES (?, ?, ?, ?);",
+            jdbcTemplate.update("INSERT IGNORE INTO Products (ProductTitle, ProductPrice, ProductManufacturer, ProductPathToImage) VALUES (?, ?, ?, ?);",
                     theProduct.getTitle(), theProduct.getPrice(), theProduct.getManufacturer(), theProduct.getPathToImage());
 
             jdbcTemplate.update("INSERT IGNORE INTO WishlistProducts (WishlistID, ProductID, Reserved) VALUES (?, ?, ?);",
@@ -44,34 +49,34 @@ public class WishlistRepository {
     }
 
     public Wishlist getWishlistByID(int wishlistID) {
-        return jdbcTemplate.queryForObject("SELECT Wishlists.ID, Wishlists.Title, Wishlists.AuthorID, Wishlists.HeldOn, Products.Title, Products.Price, Products.Manufacturer, Products.PathToImage, WishlistProducts.Reserved\n" +
+        return jdbcTemplate.queryForObject("SELECT Wishlists.WishlistID, Wishlists.WishlistTitle, Wishlists.AuthorID, Wishlists.HeldOn, Products.ProductID, ProductTitle, ProductPrice, ProductManufacturer, ProductPathToImage, WishlistProducts.Reserved\n" +
                 "FROM Wishlists \n" +
-                "LEFT JOIN WishlistProducts ON Wishlists.ID = WishlistProducts.WishlistID \n" +
-                "LEFT JOIN Products ON WishlistProducts.ProductID = Products.ID\n" +
-                "WHERE Wishlists.ID = ?;", Wishlist.class, wishlistID);
+                "LEFT JOIN WishlistProducts ON Wishlists.WishlistID = WishlistProducts.WishlistID \n" +
+                "LEFT JOIN Products ON WishlistProducts.ProductID = Products.ProductID\n" +
+                "WHERE Wishlists.WishlistID = ?;", wishlistRowMapper, wishlistID);
     }
 
     public List<Wishlist> getAllWishlistsByUserWithID(int userID) {
-        return jdbcTemplate.queryForList("SELECT Wishlists.ID, Wishlists.Title, Wishlists.AuthorID, Wishlists.HeldOn, Products.Title, Products.Price, Products.Manufacturer, Products.PathToImage, WishlistProducts.Reserved\n" +
+        return jdbcTemplate.query("SELECT Wishlists.WishlistID, Wishlists.WishlistTitle, Wishlists.AuthorID, Wishlists.HeldOn, Products.ProductID, ProductTitle, ProductPrice, ProductManufacturer, ProductPathToImage, WishlistProducts.Reserved\n" +
                 "FROM Wishlists \n" +
-                "LEFT JOIN WishlistProducts ON Wishlists.ID = WishlistProducts.WishlistID \n" +
-                "LEFT JOIN Products ON WishlistProducts.ProductID = Products.ID\n" +
-                "WHERE Wishlists.AuthorID = ?;", Wishlist.class, userID);
+                "LEFT JOIN WishlistProducts ON Wishlists.WishlistID = WishlistProducts.WishlistID \n" +
+                "LEFT JOIN Products ON WishlistProducts.ProductID = Products.ProductID\n" +
+                "WHERE Wishlists.AuthorID = ?;", wishlistRowMapper, userID);
     }
 
     public List<Wishlist> getAllWishlistsUserIsInvitedTo(int userID) {
-        return jdbcTemplate.queryForList("SELECT Wishlists.ID, Wishlists.Title, Wishlists.AuthorID, Wishlists.HeldOn, Products.Title, Products.Price, Products.Manufacturer, Products.PathToImage, WishlistProducts.Reserved\n" +
+        return jdbcTemplate.query("SELECT Wishlists.WishlistID, Wishlists.WishlistTitle, Wishlists.AuthorID, Wishlists.HeldOn, Products.ProductID, ProductTitle, ProductPrice, ProductManufacturer, ProductPathToImage, WishlistProducts.Reserved\n" +
                 "FROM Wishlists \n" +
-                "JOIN WishlistGuests ON Wishlists.ID = WishlistGuests.WishlistID\n" +
-                "LEFT JOIN WishlistProducts ON Wishlists.ID = WishlistProducts.WishlistID \n" +
-                "LEFT JOIN Products ON WishlistProducts.ProductID = Products.ID\n" +
-                "WHERE WishlistGuests.UserID = ?;", Wishlist.class, userID);
+                "JOIN WishlistGuests ON Wishlists.WishlistID = WishlistGuests.WishlistID\n" +
+                "LEFT JOIN WishlistProducts ON Wishlists.WishlistID = WishlistProducts.WishlistID \n" +
+                "LEFT JOIN Products ON WishlistProducts.ProductID = Products.ProductID\n" +
+                "WHERE WishlistGuests.UserID = ?;", wishlistRowMapper, userID);
     }
 
     // ToDo: Verify that cascading works as expected
     // (Entries in corresponding junction tables should also be removed)
     public int deleteWishlistByID(int wishlistID) {
-        return jdbcTemplate.update("DELETE FROM Wishlists WHERE ID = ?;", wishlistID);
+        return jdbcTemplate.update("DELETE FROM Wishlists WHERE WishlistID = ?;", wishlistID);
     }
 
     // ToDo: Verify that cascading works as expected
