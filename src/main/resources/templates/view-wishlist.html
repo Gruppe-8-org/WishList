@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="'Wishlist: ' + ${wishlist.title}">Wishlist</title>
+</head>
+<body>
+<h1 th:text="'Wishlist: ' + ${wishlist.title}">Wishlist Title</h1>
+
+<h2>Products</h2>
+<ul>
+    <li th:each="product : ${products}" th:text="${product.title} + ' - $' + ${product.price}">Product Name</li>
+</ul>
+
+<br>
+<a th:href="@{/wishlist/create}">Create another Wishlist</a>
+<br>
+<a th:href="@{/}">Back to Front Page</a>
+</body>
+</html>

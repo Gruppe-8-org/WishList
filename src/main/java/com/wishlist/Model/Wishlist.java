@@ -10,6 +10,9 @@ public class Wishlist {
     private Date heldOn;
     private List<WishlistProduct> products;
 
+    public Wishlist() {
+    }
+
     public Wishlist(int ID, String title, int authorID, Date heldOn, List<WishlistProduct> products) {
         this.ID = ID;
         this.title = title;

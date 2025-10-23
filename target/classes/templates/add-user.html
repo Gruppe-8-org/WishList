@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/style.css?v=1}">
+</head>
+<body>
+<h2>Opret bruger</h2>
+
+
+<form th:action="@{/user/create}" th:object="${user}" method="post">
+
+    <label for="username">Displaynavn:</label>
+    <input type="text" id="username" th:field="*{username}" required>
+ </body>
+</html>
