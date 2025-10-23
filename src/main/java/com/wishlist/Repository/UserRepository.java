@@ -31,6 +31,11 @@ public class UserRepository {
                 user.getName(), user.getUsername(), user.getPassword());
     }
 
+    public int updateUser(User editedUser) {
+        return jdbcTemplate.update("UPDATE Users SET User_Name = ?, Username = ?, Password = ?",
+                editedUser.getName(), editedUser.getUsername(), editedUser.getPassword());
+    }
+
     // Todo: Select which one we'll use when templates are done.
     public int deleteUser(User user) {
         return jdbcTemplate.update("DELETE FROM Users WHERE UserID = ?;", user.getID());

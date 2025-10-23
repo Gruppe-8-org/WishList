@@ -48,6 +48,33 @@ public class WishlistRepository {
         }
     }
 
+    public void updateWishlist(Wishlist editedWishlist, List<User> guests) {
+        Wishlist wishlistToEdit = getWishlistByID(editedWishlist.getID()); // Make sure the ID can't be modified in forms.
+
+        if (wishlistToEdit == null) {
+            return;
+        }
+
+        jdbcTemplate.update("UPDATE Wishlists SET AuthorID = ?, WishlistTitle = ?, HeldOn = ? WHERE WishlistID = ?",
+                editedWishlist.getAuthorID(), editedWishlist.getTitle(), editedWishlist.getHeldOn(), editedWishlist.getID());
+
+        jdbcTemplate.update("DELETE FROM WishlistProducts WHERE WishlistID = ?", editedWishlist.getID());
+        jdbcTemplate.update("DELETE FROM WishlistGuests WHERE WishlistID = ?", editedWishlist.getID());
+
+        for (WishlistProduct wp : editedWishlist.getProducts()) {
+            int productID = wp.getProduct().getID();
+            boolean reserved = wp.isReserved();
+
+            jdbcTemplate.update("INSERT IGNORE INTO WishlistProducts (WishlistID, ProductID, Reserved) VALUES (?, ?, ?)",
+                    editedWishlist.getID(), productID, reserved);
+        }
+
+        for (User guest : guests) {
+            jdbcTemplate.update("INSERT IGNORE INTO WishlistGuests (WishlistID, UserID) VALUES (?, ?)",
+                    editedWishlist.getID(), guest.getID());
+        }
+    }
+
     public Wishlist getWishlistByID(int wishlistID) {
         return jdbcTemplate.queryForObject("SELECT Wishlists.WishlistID, Wishlists.WishlistTitle, Wishlists.AuthorID, Wishlists.HeldOn, Products.ProductID, ProductTitle, ProductPrice, ProductManufacturer, ProductPathToImage, WishlistProducts.Reserved\n" +
                 "FROM Wishlists \n" +

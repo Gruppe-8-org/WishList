@@ -31,6 +31,11 @@ public class ProductRepository {
         return jdbcTemplate.query("SELECT * FROM Products", productRowMapper);
     }
 
+    public int updateProduct(Product product) {
+        return jdbcTemplate.update("UPDATE Products SET ProductTitle = ?, ProductPrice = ?, ProductManufacturer = ?, ProductPathToImage = ?",
+                product.getTitle(), product.getPrice(), product.getManufacturer(), product.getPathToImage());
+    }
+
     public Product getProductByID(int productID) {
         return jdbcTemplate.queryForObject("SELECT * FROM Products WHERE ProductID = ?", productRowMapper, productID);
     }
