@@ -6,8 +6,12 @@ import com.wishlist.RowMappers.WishlistProductRowMapper;
 import com.wishlist.RowMappers.WishlistRowMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 
 @Repository
@@ -29,45 +33,56 @@ public class WishlistRepository {
         this.wishlistRowMapper = wishlistRowMapper;
     }
 
-    public void addWishlist(Wishlist wishlist, List<User> guests) {
-        jdbcTemplate.update("INSERT IGNORE INTO Wishlists (AuthorID, WishlistTitle, HeldOn) VALUES (?, ?, ?);",
-                wishlist.getAuthorID(), wishlist.getTitle(), wishlist.getHeldOn());
+    //UDKOMMENTERET og tilføjet en ny for at se om det får metoden til at virke
+    //Har ladet den blive hvis det giver bedre mening at bruge den senere og i stedet ændre controller/service
+//    public void addWishlist(Wishlist wishlist, List<User> guests) {
+//        jdbcTemplate.update("INSERT IGNORE INTO Wishlists (AuthorID, WishlistTitle, HeldOn) VALUES (?, ?, ?);",
+//                wishlist.getAuthorID(), wishlist.getTitle(), wishlist.getHeldOn());
+//
+//        for (WishlistProduct wp : wishlist.getProducts()) {
+//            Product theProduct = wp.getProduct();
+//            jdbcTemplate.update("INSERT IGNORE INTO Products (ProductTitle, ProductPrice, ProductManufacturer, ProductPathToImage) VALUES (?, ?, ?, ?);",
+//                    theProduct.getTitle(), theProduct.getPrice(), theProduct.getManufacturer(), theProduct.getPathToImage());
+//
+//            jdbcTemplate.update("INSERT IGNORE INTO WishlistProducts (WishlistID, ProductID, Reserved) VALUES (?, ?, ?);",
+//                    wishlist.getID(), theProduct.getID(), wp.isReserved());
+//        }
+//
+//        for (User user : guests) {
+//            jdbcTemplate.update("INSERT IGNORE INTO WishlistGuests (WishlistID, UserID) VALUES (?, ?);",
+//                    wishlist.getID(), user.getID());
+//        }
+//    }
+public void addWishlist(Wishlist wishlist, List<User> guests) {
+    String sql = "INSERT INTO Wishlists (AuthorID, WishlistTitle, HeldOn) VALUES (?, ?, ?)";
 
-        for (WishlistProduct wp : wishlist.getProducts()) {
-            Product theProduct = wp.getProduct();
-            jdbcTemplate.update("INSERT IGNORE INTO Products (ProductTitle, ProductPrice, ProductManufacturer, ProductPathToImage) VALUES (?, ?, ?, ?);",
-                    theProduct.getTitle(), theProduct.getPrice(), theProduct.getManufacturer(), theProduct.getPathToImage());
+    KeyHolder keyHolder = new GeneratedKeyHolder();
+    jdbcTemplate.update(connection -> {
+        PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        ps.setInt(1, wishlist.getAuthorID());
+        ps.setString(2, wishlist.getTitle());
+        ps.setObject(3, wishlist.getHeldOn()); // assuming HeldOn can be null
+        return ps;
+    }, keyHolder);
 
-            jdbcTemplate.update("INSERT IGNORE INTO WishlistProducts (WishlistID, ProductID, Reserved) VALUES (?, ?, ?);",
-                    wishlist.getID(), theProduct.getID(), wp.isReserved());
-        }
+    // set the generated ID back to the wishlist
+    wishlist.setID(keyHolder.getKey().intValue());
 
-        for (User user : guests) {
-            jdbcTemplate.update("INSERT IGNORE INTO WishlistGuests (WishlistID, UserID) VALUES (?, ?);",
-                    wishlist.getID(), user.getID());
-        }
+    // Now you can safely insert products
+    for (WishlistProduct wp : wishlist.getProducts()) {
+        Product theProduct = wp.getProduct();
+        jdbcTemplate.update("INSERT IGNORE INTO Products (ProductTitle, ProductPrice, ProductManufacturer, ProductPathToImage) VALUES (?, ?, ?, ?);",
+                theProduct.getTitle(), theProduct.getPrice(), theProduct.getManufacturer(), theProduct.getPathToImage());
+
+        jdbcTemplate.update("INSERT IGNORE INTO WishlistProducts (WishlistID, ProductID, Reserved) VALUES (?, ?, ?);",
+                wishlist.getID(), theProduct.getID(), wp.isReserved());
     }
 
-    public void updateWishlist(Wishlist editedWishlist, List<User> guests) {
-        jdbcTemplate.update("UPDATE Wishlists SET AuthorID = ?, WishlistTitle = ?, HeldOn = ? WHERE WishlistID = ?",
-                editedWishlist.getAuthorID(), editedWishlist.getTitle(), editedWishlist.getHeldOn(), editedWishlist.getID());
-
-        jdbcTemplate.update("DELETE FROM WishlistProducts WHERE WishlistID = ?", editedWishlist.getID());
-        jdbcTemplate.update("DELETE FROM WishlistGuests WHERE WishlistID = ?", editedWishlist.getID());
-
-        for (WishlistProduct wp : editedWishlist.getProducts()) {
-            int productID = wp.getProduct().getID();
-            boolean reserved = wp.isReserved();
-
-            jdbcTemplate.update("INSERT IGNORE INTO WishlistProducts (WishlistID, ProductID, Reserved) VALUES (?, ?, ?)",
-                    editedWishlist.getID(), productID, reserved);
-        }
-
-        for (User guest : guests) {
-            jdbcTemplate.update("INSERT IGNORE INTO WishlistGuests (WishlistID, UserID) VALUES (?, ?)",
-                    editedWishlist.getID(), guest.getID());
-        }
+    for (User user : guests) {
+        jdbcTemplate.update("INSERT IGNORE INTO WishlistGuests (WishlistID, UserID) VALUES (?, ?);",
+                wishlist.getID(), user.getID());
     }
+}
 
     public Wishlist getWishlistByID(int wishlistID) {
         return jdbcTemplate.queryForObject("SELECT Wishlists.WishlistID, Wishlists.WishlistTitle, Wishlists.AuthorID, Wishlists.HeldOn, Products.ProductID, ProductTitle, ProductPrice, ProductManufacturer, ProductPathToImage, WishlistProducts.Reserved\n" +

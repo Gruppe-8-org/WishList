@@ -45,6 +45,22 @@ public class ProductRepository {
                 product.getID(), product.getTitle(), product.getManufacturer(), product.getPathToImage(), product.getPrice());
     }
 
+//udkommenteret og tilføjet en anden lige nedenunder for at se om det får programmet til at virke i forhold til at tilføje en wishlist
+//    public List<Product> getProductsByWishlistID(int wishlistID) {
+//        String sql = "SELECT * FROM Products WHERE WishlistID = ?";
+//        return jdbcTemplate.query(sql, productRowMapper, wishlistID);
+//    }
+
+    public List<Product> getProductsByWishlistID(int wishlistID) {
+        String sql = """
+        SELECT p.ProductID, p.ProductTitle, p.ProductManufacturer, p.ProductPathToImage, p.ProductPrice
+        FROM Products p
+        JOIN WishlistProducts wp ON p.ProductID = wp.ProductID
+        WHERE wp.WishlistID = ?
+        """;
+        return jdbcTemplate.query(sql, productRowMapper, wishlistID);
+    }
+
     public void addProducts(List<Product> products) {
         for (Product p : products) {
             addProduct(p); // Discards return value
