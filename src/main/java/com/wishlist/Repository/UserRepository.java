@@ -26,6 +26,10 @@ public class UserRepository {
         this.userRowMapper = userRowMapper;
     }
 
+    public User getUserByID(int userID) {
+        return jdbcTemplate.queryForObject("SELECT * FROM User WHERE UserID = ?", User.class, userID);
+    }
+
     public int addUser(User user) {
         return jdbcTemplate.update("INSERT IGNORE INTO Users (User_Name, Username, Password) VALUES (?, ?, ?);",
                 user.getName(), user.getUsername(), user.getPassword());
@@ -36,26 +40,29 @@ public class UserRepository {
                 editedUser.getName(), editedUser.getUsername(), editedUser.getPassword());
     }
 
-    // Todo: Select which one we'll use when templates are done.
-    public int deleteUser(User user) {
-        return jdbcTemplate.update("DELETE FROM Users WHERE UserID = ?;", user.getID());
-    }
-
     public int deleteUserByID(int userID) {
         return jdbcTemplate.update("DELETE FROM Users WHERE UserID = ?;", userID);
     }
 
+    /*
     public boolean isLoggedIn(HttpSession session) {
-        return !session.getAttribute("username").toString().isEmpty();
+        return session.getAttribute("user") != null;
     }
+
+    Should be in our Controller. Set to private there instead of public.
+     */
 
     public boolean canViewWishlist(int wishlistID, int userID) {
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject("SELECT COUNT(*) > 0 FROM WishlistGuests WHERE WishlistID = ? AND UserID = ?;",
-                boolean.class, wishlistID, userID));
+                boolean.class, wishlistID, userID)) || // User is a set as a guest of the wishlist.
+                Boolean.TRUE.equals(jdbcTemplate.queryForObject("SELECT COUNT(*) > 0 FROM Wishlists WHERE WishlistID = ? AND Wishlists.AuthorID = ?",
+                        Boolean.class, wishlistID, userID)); // User is the author of the wishlist.
     }
 
-    public int reserveWish(int wishlistID, int productID) {
-        return jdbcTemplate.update("UPDATE WishlistProducts SET Reserved = TRUE WHERE WishlistID = ? AND ProductID = ?;",
+    public void reserveWish(int wishlistID, int productID) {
+        jdbcTemplate.update("UPDATE WishlistProducts SET Reserved = TRUE WHERE WishlistID = ? AND ProductID = ?;",
                 wishlistID, productID);
+        // Don't care about rows affected since product may already be reserved.
+        // Should never be greater than 1 however.
     }
 }
