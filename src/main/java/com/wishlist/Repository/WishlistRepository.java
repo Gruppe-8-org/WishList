@@ -49,12 +49,6 @@ public class WishlistRepository {
     }
 
     public void updateWishlist(Wishlist editedWishlist, List<User> guests) {
-        Wishlist wishlistToEdit = getWishlistByID(editedWishlist.getID()); // Make sure the ID can't be modified in forms.
-
-        if (wishlistToEdit == null) {
-            return;
-        }
-
         jdbcTemplate.update("UPDATE Wishlists SET AuthorID = ?, WishlistTitle = ?, HeldOn = ? WHERE WishlistID = ?",
                 editedWishlist.getAuthorID(), editedWishlist.getTitle(), editedWishlist.getHeldOn(), editedWishlist.getID());
 
