@@ -1,0 +1,50 @@
+body {
+    display: grid;
+    min-width: 400px;
+    font-family: sans-serif;
+    grid-template-areas:
+        "header"
+        "main"
+        "footer";
+    grid-template-columns: 1fr;
+}
+
+h1 {
+    font-size: 1.5em;
+}
+
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+main {
+    width: 80%;
+    margin: 0 auto;
+    grid-area: main;
+}
+
+nav {
+    grid-area: header;
+    width: 100%;
+}
+
+.nav-wrapper {
+    padding: 5px;
+    background-color: #505050;
+}
+
+.nav-list .nav-list-item {
+    display: inline-block;
+    list-style: none;
+}
+
+footer {
+    width: 100%;
+    background-color: #505050;
+    grid-area: footer;
+}
+
+.contact-info-list-item, footer p {
+    color: white;
+}
