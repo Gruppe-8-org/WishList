@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link th:href="@{/main.css}" rel="stylesheet">
+    <meta charset="UTF-8">
+    <title th:text="${wishlistByID.title}"></title>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main>
+    <form th:action="@{'/user/' + ${user.id} + '/' + ${wishlist.id} '/delete'}" th:object="${wishlistByID}"  method="post">
+        <h1 th:text="${wishlistByID.title}"></h1>
+        <h2 th:text="${wishlistByID.heldOn}"></h2>
+        <button type="submit">Confirm Deletion</button>
+        <a th:href="@{'/user/' + ${user.id}}">Cancel Deletion</a>
+    </form>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Wishlist App</title>
+</head>
+<body>
+<h1>Welcome to the Wishlist App</h1>
+
+<p>This is a web app designed to help you create and manage your very own wishlists</p>
+
+<h2>Features:</h2>
+<p>- Create your profile to see and configure your very own wishlists</p>
+<p>- Make and customize your wishlists with whatever products you desire</p>
+<p>- Share your wishlist with other users, so that they can reserve certain wishes</p>
+
+<h3>Create a user to get started</h3>
+<a th:href="@{/user/create}">Create User</a>
+
+<h3>Login if you already have a user</h3>
+<a th:href="@{/user/login}">Create User</a>
+
+</body>
+</html>

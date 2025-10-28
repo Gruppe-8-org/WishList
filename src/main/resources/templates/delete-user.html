@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <link th:href="@{/style.css?v=1}" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title th:text="${userByID.name}"></title>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main>
+  <form th:action="@{'/user/' + ${user.id} + '/delete'}" th:object="${userByID}"  method="post">
+    <h1 th:text="${user.name}"></h1>
+    <button type="submit">Confirm Deletion</button>
+    <a th:href="@{'/user/' + ${user.id}}">Cancel Deletion</a>
+  </form>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

@@ -8,15 +8,13 @@ import com.wishlist.Service.ProductService;
 import com.wishlist.Service.WishlistService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Controller
+@RequestMapping("/user/{id}/wishlist")
 public class WishlistController {
     private final WishlistService wishlistService;
     private final ProductService productService;
@@ -27,16 +25,16 @@ public class WishlistController {
     }
     @GetMapping("/")
     public String showFrontPage() {
-        return "frontpage";
+        return "index";
     }
     //I postmappen har jeg kommenteret på sessions, det skal højst sandsynligt tilføjes til dem alle, for netop at knytte det til et ID
-    @GetMapping("/wishlist/create")
+    @GetMapping("/create")
     public String showCreateForm(Model model) {
         model.addAttribute("wishlist", new Wishlist());
-        return "add-wishlist";
+        return "wishlistcreateform";
     }
 
-    @PostMapping("/wishlist/create")
+    @PostMapping("/create")
     public String addWishlist(@RequestParam String wishlistName) {
         Wishlist wishlist = new Wishlist();
         wishlist.setProducts(new ArrayList<>());
@@ -49,7 +47,7 @@ public class WishlistController {
         wishlist.setTitle(wishlistName);
         wishlistService.addWishlist(wishlist, guests);
 
-        return "redirect:/wishlist/" + wishlist.getID();
+        return "redirect:/user/{id}/wishlist/" + wishlist.getID();
     }
 
 
@@ -73,7 +71,7 @@ public class WishlistController {
 //    }
 
     //her skal vi også have tilføjet sessions.
-    @GetMapping("/wishlist/{id}")
+    @GetMapping("/{id}")
     public String viewWishlist(@PathVariable("id") int id, Model model) {
         Wishlist wishlist = wishlistService.getWishlistByID(id);
 
@@ -81,11 +79,13 @@ public class WishlistController {
 
         model.addAttribute("wishlist", wishlist);
         model.addAttribute("products", products);
-        return "view-wishlist";
+        return "renderwishlist";
     }
-    @PostMapping("/wishlist/delete/{id}")
+    @PostMapping("/{id}/delete")
     public String deleteWishlist(@PathVariable int id) {
         wishlistService.deleteWishlistByID(id);
         return "redirect:/wishlist";
     }
+
+    //Vi mangler en update wishlist.
 }

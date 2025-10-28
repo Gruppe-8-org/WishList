@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <link th:href="@{/main.css}" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title th:text="${userByID.name}"></title>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main>
+  <h1>Your Wishlists</h1>
+  <table>
+    <thead>
+    <tr>
+      <th>Title</th>
+      <th>Held On</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="wishlist: ${wishlists}">
+      <td th:text="${wishlist.title}"></td>
+      <td th:text="${wishlist.heldOn}"></td>
+
+      <td><a th:href="@{'/user/' + ${user.id} + '/wishlist/' + ${wishlist.id}}">Check Wishlist</a></td>
+      <td><a th:href="@{'/user/' + ${user.id} + '/wishlist/' + ${wishlist.id} + '/update'}">Update Wishlist</a></td>
+      <td><a th:href="@{'/user/' + ${user.id} + '/wishlist/' + ${wishlist.id} + '/delete'}">Delete Wishlist</a></td>
+    </tr>
+    </tbody>
+  </table>
+  <a th:href="@{'/user/' + ${user.id} + '/wishlist/add'}">Add Wishlist</a>
+  <a href="/">Log out</a>
+
+  <a th:href="@{'/user/' + ${user.id} + '/update'}">Update User</a>
+  <a th:href="@{'/user/' + ${user.id} + '/delete'}">Delete User</a>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

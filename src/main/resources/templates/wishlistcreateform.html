@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link th:href="@{/main.css}" rel="stylesheet">
+    <meta charset="UTF-8">
+    <title>New Wishlist</title>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main>
+    <h1>Add Products</h1>
+    <form th:action="@{/wishlist/save}" th:object="${newWishlist}" method="post">
+        <fieldset>
+            <label for="title">Title</label>
+            <input id="title" th:field="${newWishList.title}">
+
+            <label for="heldOn">Event Date</label>
+            <input id="heldOn" th:field="${newWishList.heldOn}">
+
+            <label for="products">Products</label>
+            <select name="products" id="products" th:field="*{products}">
+                <option value="">--Please Choose--</option>
+                <option th:each="type : ${products}" th:value="${type}" th:text="${type}"></option>
+            </select>
+
+            <button type="submit">Create Wishlist</button>
+            <a th:href="@{'/user/' + ${user.id}}">Cancel</a>
+        </fieldset>
+    </form>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>
