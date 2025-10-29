@@ -1,11 +1,25 @@
 package com.wishlist.Model;
 
+import java.util.Objects;
+
 public class Product {
     private int ID;
     private String title;
     private String manufacturer;
     private String pathToImage;
     private double price;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Product product = (Product) o;
+        return ID == product.ID && Double.compare(price, product.price) == 0 && Objects.equals(title, product.title) && Objects.equals(manufacturer, product.manufacturer) && Objects.equals(pathToImage, product.pathToImage);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(ID, title, manufacturer, pathToImage, price);
+    }
 
     public Product(int ID, String title, String manufacturer, String pathToImage, double price) {
         this.ID = ID;

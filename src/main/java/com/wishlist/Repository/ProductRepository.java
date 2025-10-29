@@ -1,8 +1,10 @@
 package com.wishlist.Repository;
 
 import com.wishlist.Model.Product;
+import com.wishlist.Model.User;
 import com.wishlist.RowMappers.ProductRowMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -28,20 +30,28 @@ public class ProductRepository {
     }
 
     public List<Product> getAllProducts() {
-        return jdbcTemplate.query("SELECT * FROM Products", productRowMapper);
+        return jdbcTemplate.query("SELECT * FROM Products;", productRowMapper);
     }
 
     public int updateProduct(Product product) {
-        return jdbcTemplate.update("UPDATE Products SET ProductTitle = ?, ProductPrice = ?, ProductManufacturer = ?, ProductPathToImage = ?",
-                product.getTitle(), product.getPrice(), product.getManufacturer(), product.getPathToImage());
+        return jdbcTemplate.update("UPDATE Products SET ProductTitle = ?, ProductPrice = ?, ProductManufacturer = ?, ProductPathToImage = ? WHERE ProductID = ?;",
+                product.getTitle(), product.getPrice(), product.getManufacturer(), product.getPathToImage(), product.getID());
     }
 
     public Product getProductByID(int productID) {
-        return jdbcTemplate.queryForObject("SELECT * FROM Products WHERE ProductID = ?", productRowMapper, productID);
+        Product productToReturn;
+
+        try {
+            productToReturn = jdbcTemplate.queryForObject("SELECT * FROM Products WHERE ProductID = ?;", productRowMapper, productID);
+        } catch (EmptyResultDataAccessException erdae) {
+            productToReturn = null;
+        }
+
+        return productToReturn;
     }
 
     public int addProduct(Product product) {
-        return jdbcTemplate.update("INSERT IGNORE INTO Products (ProductID, ProductTitle, ProductManufacturer, ProductPathToImage, ProductPrice) VALUES (?, ?, ?, ?, ?)",
+        return jdbcTemplate.update("INSERT IGNORE INTO Products (ProductID, ProductTitle, ProductManufacturer, ProductPathToImage, ProductPrice) VALUES (?, ?, ?, ?, ?);",
                 product.getID(), product.getTitle(), product.getManufacturer(), product.getPathToImage(), product.getPrice());
     }
 
@@ -52,6 +62,6 @@ public class ProductRepository {
     }
 
     public int deleteProductByID(int productID) {
-        return jdbcTemplate.update("DELETE FROM Products WHERE ProductID = ?", productID);
+        return jdbcTemplate.update("DELETE FROM Products WHERE ProductID = ?;", productID);
     }
 }

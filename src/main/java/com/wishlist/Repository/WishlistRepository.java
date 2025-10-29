@@ -5,6 +5,7 @@ import com.wishlist.RowMappers.ProductRowMapper;
 import com.wishlist.RowMappers.WishlistProductRowMapper;
 import com.wishlist.RowMappers.WishlistRowMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -24,7 +25,7 @@ public class WishlistRepository {
     protected final JdbcTemplate jdbcTemplate;
     protected final WishlistRowMapper wishlistRowMapper;
 
-    public WishlistRepository(JdbcTemplate jdbcTemplate, WishlistRowMapper wishlistRowMapper, WishlistProductRowMapper wishlistProductRowMapper, ProductRowMapper productRowMapper) {
+    public WishlistRepository(JdbcTemplate jdbcTemplate, WishlistRowMapper wishlistRowMapper) {
         this.jdbcTemplate = jdbcTemplate;
         this.wishlistRowMapper = wishlistRowMapper;
     }
@@ -49,32 +50,43 @@ public class WishlistRepository {
     }
 
     public void updateWishlist(Wishlist editedWishlist, List<User> guests) {
-        jdbcTemplate.update("UPDATE Wishlists SET AuthorID = ?, WishlistTitle = ?, HeldOn = ? WHERE WishlistID = ?",
+        jdbcTemplate.update("UPDATE Wishlists SET AuthorID = ?, WishlistTitle = ?, HeldOn = ? WHERE WishlistID = ?;",
                 editedWishlist.getAuthorID(), editedWishlist.getTitle(), editedWishlist.getHeldOn(), editedWishlist.getID());
 
-        jdbcTemplate.update("DELETE FROM WishlistProducts WHERE WishlistID = ?", editedWishlist.getID());
-        jdbcTemplate.update("DELETE FROM WishlistGuests WHERE WishlistID = ?", editedWishlist.getID());
+        jdbcTemplate.update("DELETE FROM WishlistProducts WHERE WishlistID = ?;", editedWishlist.getID());
+        jdbcTemplate.update("DELETE FROM WishlistGuests WHERE WishlistID = ?;", editedWishlist.getID());
 
         for (WishlistProduct wp : editedWishlist.getProducts()) {
-            int productID = wp.getProduct().getID();
+            Product theProduct = wp.getProduct();
             boolean reserved = wp.isReserved();
 
-            jdbcTemplate.update("INSERT IGNORE INTO WishlistProducts (WishlistID, ProductID, Reserved) VALUES (?, ?, ?)",
-                    editedWishlist.getID(), productID, reserved);
+            jdbcTemplate.update("INSERT IGNORE INTO Products (ProductID, ProductTitle, ProductManufacturer, ProductPathToImage, ProductPrice) VALUES (?, ?, ?, ?, ?);",
+                    theProduct.getID(), theProduct.getTitle(), theProduct.getManufacturer(), theProduct.getManufacturer(), theProduct.getPrice());
+
+            jdbcTemplate.update("INSERT IGNORE INTO WishlistProducts (WishlistID, ProductID, Reserved) VALUES (?, ?, ?);",
+                    editedWishlist.getID(), theProduct.getID(), reserved);
         }
 
         for (User guest : guests) {
-            jdbcTemplate.update("INSERT IGNORE INTO WishlistGuests (WishlistID, UserID) VALUES (?, ?)",
+            jdbcTemplate.update("INSERT IGNORE INTO WishlistGuests (WishlistID, UserID) VALUES (?, ?);",
                     editedWishlist.getID(), guest.getID());
         }
     }
 
     public Wishlist getWishlistByID(int wishlistID) {
-        return jdbcTemplate.queryForObject("SELECT Wishlists.WishlistID, Wishlists.WishlistTitle, Wishlists.AuthorID, Wishlists.HeldOn, Products.ProductID, ProductTitle, ProductPrice, ProductManufacturer, ProductPathToImage, WishlistProducts.Reserved\n" +
-                "FROM Wishlists \n" +
-                "LEFT JOIN WishlistProducts ON Wishlists.WishlistID = WishlistProducts.WishlistID \n" +
-                "LEFT JOIN Products ON WishlistProducts.ProductID = Products.ProductID\n" +
-                "WHERE Wishlists.WishlistID = ?;", wishlistRowMapper, wishlistID);
+        Wishlist wishlistToReturn;
+
+        try {
+            wishlistToReturn = jdbcTemplate.queryForObject("SELECT Wishlists.WishlistID, Wishlists.WishlistTitle, Wishlists.AuthorID, Wishlists.HeldOn, Products.ProductID, ProductTitle, ProductPrice, ProductManufacturer, ProductPathToImage, WishlistProducts.Reserved\n" +
+                    "FROM Wishlists \n" +
+                    "LEFT JOIN WishlistProducts ON Wishlists.WishlistID = WishlistProducts.WishlistID \n" +
+                    "LEFT JOIN Products ON WishlistProducts.ProductID = Products.ProductID\n" +
+                    "WHERE Wishlists.WishlistID = ?;", wishlistRowMapper, wishlistID);
+        } catch (EmptyResultDataAccessException erdae) {
+            wishlistToReturn = null;
+        }
+
+        return wishlistToReturn;
     }
 
     public List<Wishlist> getAllWishlistsByUserWithID(int userID) {
@@ -94,15 +106,11 @@ public class WishlistRepository {
                 "WHERE WishlistGuests.UserID = ?;", wishlistRowMapper, userID);
     }
 
-    // ToDo: Verify that cascading works as expected
-    // (Entries in corresponding junction tables should also be removed)
     public int deleteWishlistByID(int wishlistID) {
         return jdbcTemplate.update("DELETE FROM Wishlists WHERE WishlistID = ?;", wishlistID);
     }
 
-    // ToDo: Verify that cascading works as expected
-    // (Entries in corresponding junction tables should also be removed)
     public int deleteWishlistsByUser(int userID) {
-        return jdbcTemplate.update("DELETE FROM Wishlists WHERE AuthorID = ?", userID);
+        return jdbcTemplate.update("DELETE FROM Wishlists WHERE AuthorID = ?;", userID);
     }
 }
