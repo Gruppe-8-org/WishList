@@ -2,8 +2,8 @@ package com.wishlist.Repository;
 
 import com.wishlist.Model.User;
 import com.wishlist.RowMappers.UserRowMapper;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -27,7 +27,15 @@ public class UserRepository {
     }
 
     public User getUserByID(int userID) {
-        return jdbcTemplate.queryForObject("SELECT * FROM User WHERE UserID = ?", User.class, userID);
+        User userToReturn;
+
+        try {
+            userToReturn = jdbcTemplate.queryForObject("SELECT * FROM Users WHERE UserID = ?;", userRowMapper, userID);
+        } catch (EmptyResultDataAccessException erdae) {
+            userToReturn = null;
+        }
+
+        return userToReturn;
     }
 
     public int addUser(User user) {
@@ -36,8 +44,8 @@ public class UserRepository {
     }
 
     public int updateUser(User editedUser) {
-        return jdbcTemplate.update("UPDATE Users SET User_Name = ?, Username = ?, Password = ?",
-                editedUser.getName(), editedUser.getUsername(), editedUser.getPassword());
+        return jdbcTemplate.update("UPDATE Users SET User_Name = ?, Username = ?, Password = ? WHERE UserID = ?;",
+                editedUser.getName(), editedUser.getUsername(), editedUser.getPassword(), editedUser.getID());
     }
 
     public int deleteUserByID(int userID) {
@@ -55,7 +63,7 @@ public class UserRepository {
     public boolean canViewWishlist(int wishlistID, int userID) {
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject("SELECT COUNT(*) > 0 FROM WishlistGuests WHERE WishlistID = ? AND UserID = ?;",
                 boolean.class, wishlistID, userID)) || // User is a set as a guest of the wishlist.
-                Boolean.TRUE.equals(jdbcTemplate.queryForObject("SELECT COUNT(*) > 0 FROM Wishlists WHERE WishlistID = ? AND Wishlists.AuthorID = ?",
+                Boolean.TRUE.equals(jdbcTemplate.queryForObject("SELECT COUNT(*) > 0 FROM Wishlists WHERE WishlistID = ? AND Wishlists.AuthorID = ?;",
                         Boolean.class, wishlistID, userID)); // User is the author of the wishlist.
     }
 
@@ -64,5 +72,10 @@ public class UserRepository {
                 wishlistID, productID);
         // Don't care about rows affected since product may already be reserved.
         // Should never be greater than 1 however.
+    }
+
+    public void unreserveWish(int wishlistID, int productID) {
+        jdbcTemplate.update("UPDATE WishlistProducts SET Reserved = FALSE WHERE WishlistID = ? AND ProductID = ?;",
+                wishlistID, productID);
     }
 }
