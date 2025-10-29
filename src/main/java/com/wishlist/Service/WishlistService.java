@@ -23,7 +23,13 @@ public class WishlistService {
     }
 
     public User getUserByID(int userID) {
-        return userRepository.getUserByID(userID);
+        User user = userRepository.getUserByID(userID);
+
+        if (user == null) {
+            throw new EntityDoesNotExistException("User with ID " + userID + " does not exist.");
+        }
+
+        return user;
     }
 
     public void addUser(User user) {
