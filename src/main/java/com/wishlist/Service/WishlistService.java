@@ -22,8 +22,18 @@ public class WishlistService {
         this.wishlistRepository = wishlistRepository;
     }
 
+    public User getUserByID(int userID) {
+        User user = userRepository.getUserByID(userID);
+
+        if (user == null) {
+            throw new EntityDoesNotExistException("User with ID " + userID + " does not exist.");
+        }
+
+        return user;
+    }
+
     public void addUser(User user) {
-        // Discarding return value because user may already exist
+        // Discarding return value because user may already exist, and INSERT is ignored
         userRepository.addUser(user);
     }
 
@@ -73,12 +83,30 @@ public class WishlistService {
         userRepository.reserveWish(wishlistID, productID);
     }
 
+    public void userUnreserveWish(int wishlistID, int productID) {
+        if (wishlistRepository.getWishlistByID(wishlistID) == null) {
+            throw new EntityDoesNotExistException("Wishlist with ID " + wishlistID + " does not exist.");
+        }
+
+        if (productRepository.getProductByID(productID) == null) {
+            throw new EntityDoesNotExistException("Product with ID " + productID + " does not exist.");
+        }
+
+        userRepository.unreserveWish(wishlistID, productID);
+    }
+
     public List<Product> getAllProducts() {
         return productRepository.getAllProducts();
     }
 
     public Product getProductByID(int productID) {
-        return productRepository.getProductByID(productID);
+        Product product = productRepository.getProductByID(productID);
+
+        if (product == null) {
+            throw new EntityDoesNotExistException("Product with ID " + productID + " does not exist.");
+        }
+
+        return product;
     }
 
     public void updateProduct(Product product) {

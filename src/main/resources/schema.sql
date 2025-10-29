@@ -12,7 +12,7 @@ DROP TABLE IF EXISTS Sessions;
 CREATE TABLE IF NOT EXISTS Users (
 	UserID INT PRIMARY KEY AUTO_INCREMENT,
     User_Name VARCHAR(64),
-    Username TEXT,
+    Username TEXT UNIQUE,
     Password TEXT
 );
 
