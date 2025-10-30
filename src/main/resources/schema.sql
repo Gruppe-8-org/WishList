@@ -5,9 +5,11 @@ USE WishList;
 DROP TABLE IF EXISTS Products;
 DROP TABLE IF EXISTS WishlistProducts;
 DROP TABLE IF EXISTS WishlistUsers;
+DROP TABLE IF EXISTS Reservations;
 DROP TABLE IF EXISTS Wishlists;
 DROP TABLE IF EXISTS Users;
 DROP TABLE IF EXISTS Sessions;
+
 
 CREATE TABLE IF NOT EXISTS Users (
 	UserID INT PRIMARY KEY AUTO_INCREMENT,
@@ -35,10 +37,12 @@ CREATE TABLE IF NOT EXISTS Products (
 CREATE TABLE IF NOT EXISTS WishlistProducts (
 	WishlistID INT,
     ProductID INT,
-    Reserved BOOL,
+    ReservedBy INT NULL,
+    Description TEXT,
     PRIMARY KEY (WishlistID, ProductID),
     FOREIGN KEY (WishlistID) REFERENCES Wishlists(WishlistID) ON DELETE CASCADE,
-    FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE CASCADE
+    FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE CASCADE,
+    FOREIGN KEY (ReservedBy) REFERENCES Users(UserID) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS WishlistGuests (

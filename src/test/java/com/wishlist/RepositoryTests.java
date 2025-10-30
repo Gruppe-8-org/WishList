@@ -7,29 +7,20 @@ import com.wishlist.Model.WishlistProduct;
 import com.wishlist.Repository.ProductRepository;
 import com.wishlist.Repository.UserRepository;
 import com.wishlist.Repository.WishlistRepository;
-import com.wishlist.RowMappers.ProductRowMapper;
 import com.wishlist.RowMappers.UserRowMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.CollectionFactory;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
-import java.sql.ResultSet;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 
 @SpringBootTest
@@ -140,27 +131,32 @@ class RepositoryTests {
 
     @Test
     public void reservingAWishSetsReservedToTrue() {
-        boolean reserved = jdbcTemplate.queryForObject("SELECT Reserved FROM WishlistProducts WHERE WishlistID = ? AND ProductID = ?", Boolean.class, 1, 1);
-        assertThat(reserved).isFalse();
-        userRepository.reserveWish(1, 1);
-        reserved = jdbcTemplate.queryForObject("SELECT Reserved FROM WishlistProducts WHERE WishlistID = ? AND ProductID = ?", Boolean.class, 1, 1);
+        boolean reserved = jdbcTemplate.queryForObject("SELECT COUNT(*) = 0 FROM WishlistProducts WHERE WishlistID = ? AND ProductID = ? AND ReservedBy IS NOT NULL", Boolean.class, 1, 1);
         assertThat(reserved).isTrue();
-        reserved = jdbcTemplate.queryForObject("SELECT Reserved FROM WishlistProducts WHERE WishlistID = ? AND ProductID = ?", Boolean.class, 1, 1);
-        assertThat(reserved).isTrue(); // Doing it again shouldn't change the value
+        int rowsAffected = userRepository.reserveWish(1, 1, 1);
+        assertThat(rowsAffected).isEqualTo(1);
+        reserved = jdbcTemplate.queryForObject("SELECT COUNT(*) = 0 FROM WishlistProducts WHERE WishlistID = ? AND ProductID = ? AND ReservedBy IS NOT NULL", Boolean.class, 1, 1);
+        assertThat(reserved).isFalse();
+        userRepository.reserveWish(1, 1, 1);
+        reserved = jdbcTemplate.queryForObject("SELECT COUNT(*) = 0 FROM WishlistProducts WHERE WishlistID = ? AND ProductID = ? AND ReservedBy IS NOT NULL", Boolean.class, 1, 1);
+        assertThat(reserved).isFalse(); // Doing it again shouldn't change the value
     }
 
     @Test
     public void unreservingAWishSetsReservedToFalse() {
-        boolean reserved = jdbcTemplate.queryForObject("SELECT Reserved FROM WishlistProducts WHERE WishlistID = ? AND ProductID = ?", Boolean.class, 1, 1);
+        boolean reserved = jdbcTemplate.queryForObject("SELECT COUNT(*) = 0 FROM WishlistProducts WHERE WishlistID = ? AND ProductID = ? AND ReservedBy IS NOT NULL", Boolean.class, 1, 1);
+        assertThat(reserved).isTrue();
+        int rowsAffected = userRepository.reserveWish(1, 1, 1);
+        assertThat(rowsAffected).isEqualTo(1);
+        reserved = jdbcTemplate.queryForObject("SELECT COUNT(*) = 0 FROM WishlistProducts WHERE WishlistID = ? AND ProductID = ? AND ReservedBy IS NOT NULL", Boolean.class, 1, 1);
         assertThat(reserved).isFalse();
-        userRepository.reserveWish(1, 1);
-        reserved = jdbcTemplate.queryForObject("SELECT Reserved FROM WishlistProducts WHERE WishlistID = ? AND ProductID = ?", Boolean.class, 1, 1);
+        rowsAffected = userRepository.unreserveWish(1, 1);
+        assertThat(rowsAffected).isEqualTo(1);
+        reserved = jdbcTemplate.queryForObject("SELECT COUNT(*) = 0 FROM WishlistProducts WHERE WishlistID = ? AND ProductID = ? AND ReservedBy IS NOT NULL", Boolean.class, 1, 1);
         assertThat(reserved).isTrue();
         userRepository.unreserveWish(1, 1);
-        reserved = jdbcTemplate.queryForObject("SELECT Reserved FROM WishlistProducts WHERE WishlistID = ? AND ProductID = ?", Boolean.class, 1, 1);
-        assertThat(reserved).isFalse();
-        reserved = jdbcTemplate.queryForObject("SELECT Reserved FROM WishlistProducts WHERE WishlistID = ? AND ProductID = ?", Boolean.class, 1, 1);
-        assertThat(reserved).isFalse(); // Doing it again shouldn't change the value.
+        reserved = jdbcTemplate.queryForObject("SELECT COUNT(*) = 0 FROM WishlistProducts WHERE WishlistID = ? AND ProductID = ? AND ReservedBy IS NOT NULL", Boolean.class, 1, 1);
+        assertThat(reserved).isTrue(); // Doing it again shouldn't change the value.
     }
 
     @Test
@@ -302,7 +298,7 @@ class RepositoryTests {
         assertThat(numProductsForWishlistWithID4).isEqualTo(0);
 
         List<WishlistProduct> wlProducts = productsWishedFor.stream().map(
-                product -> new WishlistProduct(product, false)
+                product -> new WishlistProduct(product, 0, "Link to product:")
         ).toList();
 
         Wishlist newWishlist = new Wishlist(4, "Max-Emils Julegaveønsker", 3, Date.from(Instant.now()), wlProducts);
@@ -332,21 +328,21 @@ class RepositoryTests {
         );
 
         List<WishlistProduct> wlProducts = newWishes.stream().map(
-                product -> new WishlistProduct(product, false)
+                product -> new WishlistProduct(product, 0, "Link to product:")
         ).toList();
 
         Wishlist maxEmilsWishlistBefore = wishlistRepository.getWishlistByID(3);
         assertThat(maxEmilsWishlistBefore.getTitle()).isEqualTo("Fødselsdag");
 
         List<WishlistProduct> expectedProducts = List.of(
-                new WishlistProduct(new Product(1, "Lego Botanicals - Bonsai Tree", "Lego", "resources/static/lego_bonsai.png",  449.95), false),
-                new WishlistProduct(new Product(3, "Spotify Årskort", "Spotify", "resources/static/spotify_logo.png", 1500.0), true),
-                new WishlistProduct(new Product(4, "Dyson Airwrap",  "Dyson", "resources/static/airwrap.png", 4100.0), false),
-                new WishlistProduct(new Product(6, "Bugatti Veyron", "Bugatti", "resources/static/bugatti_veyron.png", 25000000.0), false),
-                new WishlistProduct(new Product(9, "Versace Dylan Blue", "Versace", "resources/static/dylan_blue.png", 399.99), false)
+                new WishlistProduct(new Product(1, "Lego Botanicals - Bonsai Tree", "Lego", "resources/static/lego_bonsai.png",  449.95), 0, "Link to Product:"),
+                new WishlistProduct(new Product(3, "Spotify Årskort", "Spotify", "resources/static/spotify_logo.png", 1500.0), 1, "Link to Product:"),
+                new WishlistProduct(new Product(4, "Dyson Airwrap",  "Dyson", "resources/static/airwrap.png", 4100.0), 0, "Link to Product:"),
+                new WishlistProduct(new Product(6, "Bugatti Veyron", "Bugatti", "resources/static/bugatti_veyron.png", 25000000.0), 0, "Link to Product:"),
+                new WishlistProduct(new Product(9, "Versace Dylan Blue", "Versace", "resources/static/dylan_blue.png", 399.99), 0, "Link to Product:")
         );
 
-        assertThat(maxEmilsWishlistBefore.getProducts()).isEqualTo(expectedProducts);
+        assertThat(maxEmilsWishlistBefore.getProducts().equals(expectedProducts));
         List<User> newGuests = List.of(userRepository.getUserByID(2));
         int numGuestsForWishlistWithID3 = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM WishlistGuests WHERE WishlistID = 3;", Integer.class);
         assertThat(numGuestsForWishlistWithID3).isEqualTo(2); // Markus & Max
@@ -370,11 +366,11 @@ class RepositoryTests {
     public void getWishlistByIDWorksOnExistingWishlist() {
         Wishlist markusWishlist = wishlistRepository.getWishlistByID(1);
         List<WishlistProduct> expectedProducts = List.of(
-                new WishlistProduct(new Product(1, "Lego Botanicals - Bonsai Tree", "Lego", "resources/static/lego_bonsai.png", 449.95), false),
-                new WishlistProduct(new Product(5, "Faldskærmsudspringsgavekort", "Dropzone Denmark", "resources/static/faldskærmsudspring.png", 2495.95), false),
-                new WishlistProduct(new Product(6, "Bugatti Veyron", "Bugatti", "resources/static/bugatti_veyron.png",  25000000.0), true),
-                new WishlistProduct(new Product(7, "Rick James koncertbillet", "TicketMaster", "resources/static/rick_james.png", 849.99), false),
-                new WishlistProduct(new Product(10, "Dior Allure Homme Sport Eau Extréme", "Dior", "resources/static/AHSEE.png", 1299.99), false)
+                new WishlistProduct(new Product(1, "Lego Botanicals - Bonsai Tree", "Lego", "resources/static/lego_bonsai.png", 449.95), 0, "Link to Product:"),
+                new WishlistProduct(new Product(5, "Faldskærmsudspringsgavekort", "Dropzone Denmark", "resources/static/faldskærmsudspring.png", 2495.95), 0, "Link to Product:"),
+                new WishlistProduct(new Product(6, "Bugatti Veyron", "Bugatti", "resources/static/bugatti_veyron.png",  25000000.0), 2, "Link to Product:"),
+                new WishlistProduct(new Product(7, "Rick James koncertbillet", "TicketMaster", "resources/static/rick_james.png", 849.99), 0, "Link to Product:"),
+                new WishlistProduct(new Product(10, "Dior Allure Homme Sport Eau Extréme", "Dior", "resources/static/AHSEE.png", 1299.99), 0, "Link to Product:")
         );
 
         assertThat(markusWishlist).isNotNull();
@@ -410,19 +406,19 @@ class RepositoryTests {
         List<WishlistProduct> productsFromMaxEmilWishlist = wishlistsSharedWithMarkus.get(1).getProducts();
 
         List<WishlistProduct> expectedProductsMax = List.of(
-                new WishlistProduct(new Product(2, "Lego Architecture - Fallingwater", "Lego", "resources/static/lego_fallingwater.png", 749.95), false),
-                new WishlistProduct(new Product(5, "Faldskærmsudspringsgavekort", "Dropzone Denmark", "resources/static/faldskærmsudspring.png", 2495.95), false),
-                new WishlistProduct(new Product(6, "Bugatti Veyron", "Bugatti", "resources/static/bugatti_veyron.png",  25000000.0), true),
-                new WishlistProduct(new Product(7, "Rick James koncertbillet", "TicketMaster", "resources/static/rick_james.png", 849.99), false),
-                new WishlistProduct(new Product(8, "Mancera Cedrat Boise", "Mancera", "resources/static/cedrat_boise.png", 1499.99), false)
+                new WishlistProduct(new Product(2, "Lego Architecture - Fallingwater", "Lego", "resources/static/lego_fallingwater.png", 749.95), 0, "Link to Product:"),
+                new WishlistProduct(new Product(5, "Faldskærmsudspringsgavekort", "Dropzone Denmark", "resources/static/faldskærmsudspring.png", 2495.95), 3, "Link to Product:"),
+                new WishlistProduct(new Product(6, "Bugatti Veyron", "Bugatti", "resources/static/bugatti_veyron.png",  25000000.0), 0, "Link to Product:"),
+                new WishlistProduct(new Product(7, "Rick James koncertbillet", "TicketMaster", "resources/static/rick_james.png", 849.99), 0, "Link to Product:"),
+                new WishlistProduct(new Product(8, "Mancera Cedrat Boise", "Mancera", "resources/static/cedrat_boise.png", 1499.99), 0, "Link to Product:")
         );
 
         List<WishlistProduct> expectedProductsMaxEmil = List.of(
-                new WishlistProduct(new Product(1, "Lego Botanicals - Bonsai Tree", "Lego", "resources/static/lego_bonsai.png",  449.95), false),
-                new WishlistProduct(new Product(3, "Spotify Årskort", "Spotify", "resources/static/spotify_logo.png", 1500.0), true),
-                new WishlistProduct(new Product(4, "Dyson Airwrap",  "Dyson", "resources/static/airwrap.png", 4100.0), false),
-                new WishlistProduct(new Product(6, "Bugatti Veyron", "Bugatti", "resources/static/bugatti_veyron.png", 25000000.0), false),
-                new WishlistProduct(new Product(9, "Versace Dylan Blue", "Versace", "resources/static/dylan_blue.png", 399.99), false)
+                new WishlistProduct(new Product(1, "Lego Botanicals - Bonsai Tree", "Lego", "resources/static/lego_bonsai.png",  449.95), 0, "Link to Product:"),
+                new WishlistProduct(new Product(3, "Spotify Årskort", "Spotify", "resources/static/spotify_logo.png", 1500.0), 1, "Link to Product:"),
+                new WishlistProduct(new Product(4, "Dyson Airwrap",  "Dyson", "resources/static/airwrap.png", 4100.0), 0, "Link to Product:"),
+                new WishlistProduct(new Product(6, "Bugatti Veyron", "Bugatti", "resources/static/bugatti_veyron.png", 25000000.0), 0, "Link to Product:"),
+                new WishlistProduct(new Product(9, "Versace Dylan Blue", "Versace", "resources/static/dylan_blue.png", 399.99), 0, "Link to Product:")
         );
 
         assertThat(productsFromMaxWishlist.equals(expectedProductsMax));
@@ -480,7 +476,7 @@ class RepositoryTests {
         );
 
         List<WishlistProduct> wlProducts = productsWishedFor.stream().map(
-                product -> new WishlistProduct(product, false)
+                product -> new WishlistProduct(product, 0, "Link to product:")
         ).toList();
 
         wishlistRepository.addWishlist(new Wishlist(4, "Markus' julegaveønsker", 1, Date.from(Instant.now()), wlProducts), List.of(userRepository.getUserByID(2), userRepository.getUserByID(3)));

@@ -18,10 +18,11 @@ INSERT INTO Products (ProductID, ProductTitle, ProductPrice, ProductManufacturer
                                                                                                           (9, 'Versace Dylan Blue', 399.99, 'Versace', 'resources/static/dylan_blue.png'),
                                                                                                           (10, 'Dior Allure Homme Sport Eau Extréme', 1299.99, 'Dior', 'resources/static/AHSEE.png');
 
-INSERT INTO WishlistProducts (WishlistID, ProductID, Reserved) VALUES
-                                                                   (1, 1, FALSE), (1, 5, FALSE), (1, 6, TRUE), (1, 7, FALSE), (1, 10, FALSE),
-                                                                   (2, 2, FALSE), (2, 5, FALSE), (2, 6, FALSE), (2, 7, TRUE), (2, 8, FALSE),
-                                                                   (3, 1, FALSE), (3, 3, TRUE), (3, 4, FALSE), (3, 6, FALSE), (3, 9, FALSE);
+INSERT INTO WishlistProducts (WishlistID, ProductID, Description, ReservedBy) VALUES
+                                                                      (1, 1, 'Link to product:', null), (1, 5, 'Link to product:', null), (1, 6, 'Link to product:', 2), (1, 7, 'Link to product:', null), (1, 10, 'Link to product:', null),
+                                                                      (2, 2, 'Link to product:', null), (2, 5, 'Link to product:', 3), (2, 6, 'Link to product:', null), (2, 7, 'Link to product:', null), (2, 8, 'Link to product:', null),
+                                                                      (3, 1, 'Link to product:', null), (3, 3, 'Link to product:', 1), (3, 4, 'Link to product:', null), (3, 6, 'Link to product:', null), (3, 9, 'Link to product:', null);
+
 
 INSERT INTO WishlistGuests (WishlistID, UserID) VALUES
                                                     (1, 2), (1, 3),

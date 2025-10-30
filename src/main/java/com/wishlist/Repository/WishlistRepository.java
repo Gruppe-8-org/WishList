@@ -1,8 +1,6 @@
 package com.wishlist.Repository;
 
 import com.wishlist.Model.*;
-import com.wishlist.RowMappers.ProductRowMapper;
-import com.wishlist.RowMappers.WishlistProductRowMapper;
 import com.wishlist.RowMappers.WishlistRowMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -39,8 +37,8 @@ public class WishlistRepository {
             jdbcTemplate.update("INSERT IGNORE INTO Products (ProductTitle, ProductPrice, ProductManufacturer, ProductPathToImage) VALUES (?, ?, ?, ?);",
                     theProduct.getTitle(), theProduct.getPrice(), theProduct.getManufacturer(), theProduct.getPathToImage());
 
-            jdbcTemplate.update("INSERT IGNORE INTO WishlistProducts (WishlistID, ProductID, Reserved) VALUES (?, ?, ?);",
-                    wishlist.getID(), theProduct.getID(), wp.isReserved());
+            jdbcTemplate.update("INSERT IGNORE INTO WishlistProducts (WishlistID, ProductID, Description, ReservedBy) VALUES (?, ?, ?, ?);",
+                    wishlist.getID(), theProduct.getID(), wp.getDescription(), wp.getReserverID() == 0 ? null : wp.getReserverID());
         }
 
         for (User user : guests) {
@@ -58,13 +56,12 @@ public class WishlistRepository {
 
         for (WishlistProduct wp : editedWishlist.getProducts()) {
             Product theProduct = wp.getProduct();
-            boolean reserved = wp.isReserved();
 
             jdbcTemplate.update("INSERT IGNORE INTO Products (ProductID, ProductTitle, ProductManufacturer, ProductPathToImage, ProductPrice) VALUES (?, ?, ?, ?, ?);",
                     theProduct.getID(), theProduct.getTitle(), theProduct.getManufacturer(), theProduct.getManufacturer(), theProduct.getPrice());
 
-            jdbcTemplate.update("INSERT IGNORE INTO WishlistProducts (WishlistID, ProductID, Reserved) VALUES (?, ?, ?);",
-                    editedWishlist.getID(), theProduct.getID(), reserved);
+            jdbcTemplate.update("INSERT IGNORE INTO WishlistProducts (WishlistID, ProductID, Description, ReservedBy) VALUES (?, ?, ?, ?);",
+                    editedWishlist.getID(), theProduct.getID(), wp.getDescription(), wp.getReserverID() == 0 ? null : wp.getReserverID());
         }
 
         for (User guest : guests) {
@@ -77,11 +74,12 @@ public class WishlistRepository {
         Wishlist wishlistToReturn;
 
         try {
-            wishlistToReturn = jdbcTemplate.queryForObject("SELECT Wishlists.WishlistID, Wishlists.WishlistTitle, Wishlists.AuthorID, Wishlists.HeldOn, Products.ProductID, ProductTitle, ProductPrice, ProductManufacturer, ProductPathToImage, WishlistProducts.Reserved\n" +
-                    "FROM Wishlists \n" +
-                    "LEFT JOIN WishlistProducts ON Wishlists.WishlistID = WishlistProducts.WishlistID \n" +
-                    "LEFT JOIN Products ON WishlistProducts.ProductID = Products.ProductID\n" +
-                    "WHERE Wishlists.WishlistID = ?;", wishlistRowMapper, wishlistID);
+            wishlistToReturn = jdbcTemplate.queryForObject("""
+                    SELECT Wishlists.WishlistID, Wishlists.WishlistTitle, Wishlists.AuthorID, Wishlists.HeldOn, Products.ProductID, ProductTitle, ProductPrice, ProductManufacturer, ProductPathToImage, WishlistProducts.ReservedBy, WishlistProducts.Description
+                    FROM Wishlists\s
+                    LEFT JOIN WishlistProducts ON Wishlists.WishlistID = WishlistProducts.WishlistID\s
+                    LEFT JOIN Products ON WishlistProducts.ProductID = Products.ProductID
+                    WHERE Wishlists.WishlistID = ?;""", wishlistRowMapper, wishlistID);
         } catch (EmptyResultDataAccessException erdae) {
             wishlistToReturn = null;
         }
@@ -90,20 +88,22 @@ public class WishlistRepository {
     }
 
     public List<Wishlist> getAllWishlistsByUserWithID(int userID) {
-        return jdbcTemplate.query("SELECT Wishlists.WishlistID, Wishlists.WishlistTitle, Wishlists.AuthorID, Wishlists.HeldOn, Products.ProductID, ProductTitle, ProductPrice, ProductManufacturer, ProductPathToImage, WishlistProducts.Reserved\n" +
-                "FROM Wishlists \n" +
-                "LEFT JOIN WishlistProducts ON Wishlists.WishlistID = WishlistProducts.WishlistID \n" +
-                "LEFT JOIN Products ON WishlistProducts.ProductID = Products.ProductID\n" +
-                "WHERE Wishlists.AuthorID = ?;", wishlistRowMapper, userID);
+        return jdbcTemplate.query("""
+                SELECT Wishlists.WishlistID, Wishlists.WishlistTitle, Wishlists.AuthorID, Wishlists.HeldOn, Products.ProductID, ProductTitle, ProductPrice, ProductManufacturer, ProductPathToImage, WishlistProducts.ReservedBy, WishlistProducts.Description
+                FROM Wishlists\s
+                LEFT JOIN WishlistProducts ON Wishlists.WishlistID = WishlistProducts.WishlistID\s
+                LEFT JOIN Products ON WishlistProducts.ProductID = Products.ProductID
+                WHERE Wishlists.AuthorID = ?;""", wishlistRowMapper, userID);
     }
 
     public List<Wishlist> getAllWishlistsUserIsInvitedTo(int userID) {
-        return jdbcTemplate.query("SELECT Wishlists.WishlistID, Wishlists.WishlistTitle, Wishlists.AuthorID, Wishlists.HeldOn, Products.ProductID, ProductTitle, ProductPrice, ProductManufacturer, ProductPathToImage, WishlistProducts.Reserved\n" +
-                "FROM Wishlists \n" +
-                "JOIN WishlistGuests ON Wishlists.WishlistID = WishlistGuests.WishlistID\n" +
-                "LEFT JOIN WishlistProducts ON Wishlists.WishlistID = WishlistProducts.WishlistID \n" +
-                "LEFT JOIN Products ON WishlistProducts.ProductID = Products.ProductID\n" +
-                "WHERE WishlistGuests.UserID = ?;", wishlistRowMapper, userID);
+        return jdbcTemplate.query("""
+                SELECT Wishlists.WishlistID, Wishlists.WishlistTitle, Wishlists.AuthorID, Wishlists.HeldOn, Products.ProductID, ProductTitle, ProductPrice, ProductManufacturer, ProductPathToImage, WishlistProducts.ReservedBy, WishlistProducts.Description
+                FROM Wishlists\s
+                JOIN WishlistGuests ON Wishlists.WishlistID = WishlistGuests.WishlistID
+                LEFT JOIN WishlistProducts ON Wishlists.WishlistID = WishlistProducts.WishlistID\s
+                LEFT JOIN Products ON WishlistProducts.ProductID = Products.ProductID
+                WHERE WishlistGuests.UserID = ?;""", wishlistRowMapper, userID);
     }
 
     public int deleteWishlistByID(int wishlistID) {
