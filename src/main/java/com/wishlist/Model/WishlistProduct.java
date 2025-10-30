@@ -4,11 +4,13 @@ import java.util.Objects;
 
 public class WishlistProduct {
     private Product product;
-    private boolean isReserved;
+    private int reserverID;
+    private String description;
 
-    public WishlistProduct(Product product, boolean isReserved) {
+    public WishlistProduct(Product product, int reserverID, String description) {
         this.product = product;
-        this.isReserved = isReserved;
+        this.reserverID = reserverID;
+        this.description = description;
     }
 
     public Product getProduct() {
@@ -20,22 +22,34 @@ public class WishlistProduct {
     }
 
     public boolean isReserved() {
-        return isReserved;
+        return reserverID != 0;
     }
 
-    public void setReserved(boolean reserved) {
-        isReserved = reserved;
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public int getReserverID() {
+        return reserverID;
+    }
+
+    public void setReserverID(int reserverID) {
+        this.reserverID = reserverID;
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         WishlistProduct that = (WishlistProduct) o;
-        return isReserved == that.isReserved && Objects.equals(product, that.product);
+        return reserverID == that.reserverID && Objects.equals(product, that.product) && Objects.equals(description, that.description);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(product, isReserved);
+        return Objects.hash(product, reserverID, description);
     }
 }

@@ -71,7 +71,7 @@ public class WishlistService {
         return userRepository.canViewWishlist(wishlistID, userID);
     }
 
-    public void userReserveWish(int wishlistID, int productID) {
+    public void userReserveWish(int reserverID, int wishlistID, int productID) {
         if (wishlistRepository.getWishlistByID(wishlistID) == null) {
             throw new EntityDoesNotExistException("Wishlist with ID " + wishlistID + " does not exist.");
         }
@@ -80,7 +80,7 @@ public class WishlistService {
             throw new EntityDoesNotExistException("Product with ID " + productID + " does not exist.");
         }
 
-        userRepository.reserveWish(wishlistID, productID);
+        userRepository.reserveWish(reserverID, wishlistID, productID);
     }
 
     public void userUnreserveWish(int wishlistID, int productID) {

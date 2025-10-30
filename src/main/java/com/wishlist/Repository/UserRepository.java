@@ -67,15 +67,15 @@ public class UserRepository {
                         Boolean.class, wishlistID, userID)); // User is the author of the wishlist.
     }
 
-    public void reserveWish(int wishlistID, int productID) {
-        jdbcTemplate.update("UPDATE WishlistProducts SET Reserved = TRUE WHERE WishlistID = ? AND ProductID = ?;",
-                wishlistID, productID);
+    public int reserveWish(int reserverID, int wishlistID, int productID) {
+        return jdbcTemplate.update("UPDATE WishlistProducts SET ReservedBy = ? WHERE WishlistID = ? AND ProductID = ?",
+               reserverID, wishlistID, productID);
         // Don't care about rows affected since product may already be reserved.
-        // Should never be greater than 1 however.
+        // Should never be greater than 1, however.
     }
 
-    public void unreserveWish(int wishlistID, int productID) {
-        jdbcTemplate.update("UPDATE WishlistProducts SET Reserved = FALSE WHERE WishlistID = ? AND ProductID = ?;",
+    public int unreserveWish(int wishlistID, int productID) {
+        return jdbcTemplate.update("UPDATE WishlistProducts SET ReservedBy = NULL WHERE WishlistID = ? AND ProductID = ?",
                 wishlistID, productID);
     }
 }

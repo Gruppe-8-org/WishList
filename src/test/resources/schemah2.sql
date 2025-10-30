@@ -14,7 +14,7 @@ SET REFERENTIAL_INTEGRITY TRUE;
 CREATE TABLE IF NOT EXISTS Users (
                                      UserID INT PRIMARY KEY AUTO_INCREMENT,
                                      User_Name VARCHAR(64),
-    Username TEXT,
+    Username TEXT UNIQUE,
     Password TEXT
     );
 
@@ -37,10 +37,12 @@ CREATE TABLE IF NOT EXISTS Products (
 CREATE TABLE IF NOT EXISTS WishlistProducts (
                                                 WishlistID INT,
                                                 ProductID INT,
-                                                Reserved BOOL,
+                                                ReservedBy INT NULL,
+                                                Description TEXT,
                                                 PRIMARY KEY (WishlistID, ProductID),
     FOREIGN KEY (WishlistID) REFERENCES Wishlists(WishlistID) ON DELETE CASCADE,
-    FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE CASCADE
+    FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE CASCADE,
+    FOREIGN KEY (ReservedBy) REFERENCES Users(UserID) ON DELETE SET NULL
     );
 
 CREATE TABLE IF NOT EXISTS WishlistGuests (
@@ -49,4 +51,4 @@ CREATE TABLE IF NOT EXISTS WishlistGuests (
                                               PRIMARY KEY (WishlistID, UserID),
     FOREIGN KEY (WishlistID) REFERENCES Wishlists(WishlistID) ON DELETE CASCADE,
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
-    );
+);

@@ -19,6 +19,7 @@ public class WishlistProductRowMapper implements RowMapper<WishlistProduct> {
     @Override
     public WishlistProduct mapRow(ResultSet rs, int rowNum) throws SQLException {
         Product product = productRowMapper.mapRow(rs, rowNum);
-        return new WishlistProduct(product, rs.getBoolean("Reserved"));
+        int reserver = rs.getInt("ReservedBy"); // 0 on NULL as expected by WishlistProduct-related functions
+        return new WishlistProduct(product, reserver, rs.getString("Description"));
     }
 }
