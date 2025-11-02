@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -28,6 +29,7 @@ public class WishlistRepository {
         this.wishlistRowMapper = wishlistRowMapper;
     }
 
+    @Transactional
     public void addWishlist(Wishlist wishlist, List<User> guests) {
         jdbcTemplate.update("INSERT IGNORE INTO Wishlists (AuthorID, WishlistTitle, HeldOn) VALUES (?, ?, ?);",
                 wishlist.getAuthorID(), wishlist.getTitle(), wishlist.getHeldOn());
@@ -47,6 +49,7 @@ public class WishlistRepository {
         }
     }
 
+    @Transactional
     public void updateWishlist(Wishlist editedWishlist, List<User> guests) {
         jdbcTemplate.update("UPDATE Wishlists SET AuthorID = ?, WishlistTitle = ?, HeldOn = ? WHERE WishlistID = ?;",
                 editedWishlist.getAuthorID(), editedWishlist.getTitle(), editedWishlist.getHeldOn(), editedWishlist.getID());

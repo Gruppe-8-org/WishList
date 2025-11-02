@@ -1,7 +1,6 @@
 package com.wishlist.Repository;
 
 import com.wishlist.Model.Product;
-import com.wishlist.Model.User;
 import com.wishlist.RowMappers.ProductRowMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
