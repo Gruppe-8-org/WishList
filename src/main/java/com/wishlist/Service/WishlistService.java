@@ -78,12 +78,4 @@ public class WishlistService {
         }
     }
 
-    public boolean login(int userID, String password) {
-        User user = userRepository.getUserByID(userID);
-
-        if (user != null)
-            return user.getPassword().equals(password);
-
-        return false;
-    }
 }
