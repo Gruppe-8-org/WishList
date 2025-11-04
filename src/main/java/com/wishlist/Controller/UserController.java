@@ -46,10 +46,10 @@ public class UserController {
         return "redirect:/user/" + loggedUser.getID();
     }
 
-    @GetMapping("/{id}")
-    public String userPage(Model model, @PathVariable int id) {
-        User userByID = userService.getUserByID(id);
-        List<Wishlist> userWishlists = wishlistService.getAllWishlistsByUserWithID(id);
+    @GetMapping("/{uid}")
+    public String userPage(Model model, @PathVariable int uid) {
+        User userByID = userService.getUserByID(uid);
+        List<Wishlist> userWishlists = wishlistService.getAllWishlistsByUserWithID(uid);
 
         model.addAttribute("userByID", userByID);
         model.addAttribute("userWishlists", userWishlists);
@@ -57,22 +57,22 @@ public class UserController {
     }
 
 
-    @GetMapping("/{id}/update")
-    public String updateUser(Model model, @PathVariable int id) {
-        User updateUser = userService.getUserByID(id);
+    @GetMapping("/{uid}/update")
+    public String updateUser(Model model, @PathVariable int uid) {
+        User updateUser = userService.getUserByID(uid);
         model.addAttribute("updateUser", updateUser);
         return "update-user";
     }
 
-    @PostMapping("/{id}/update")
-    public String updateUser(@ModelAttribute User updateUser) {
+    @PostMapping("/{uid}/update")
+    public String updateUser(@ModelAttribute User updateUser, @PathVariable int uid) {
         userService.updateUser(updateUser);
         return "redirect:/user/login";
     }
 
-    @PostMapping("/{id}/delete")
-    public String deleteUser(@PathVariable int id) {
-        userService.deleteUserByID(id);
+    @PostMapping("/{uid}/delete")
+    public String deleteUser(@PathVariable int uid) {
+        userService.deleteUserByID(uid);
         return "redirect:/";
     }
 }

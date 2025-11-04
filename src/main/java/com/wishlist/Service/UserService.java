@@ -6,7 +6,9 @@ import com.wishlist.Model.User;
 import com.wishlist.Repository.ProductRepository;
 import com.wishlist.Repository.UserRepository;
 import com.wishlist.Repository.WishlistRepository;
+import org.springframework.stereotype.Service;
 
+@Service
 public class UserService {
     private final UserRepository userRepository;
     private final WishlistRepository wishlistRepository;

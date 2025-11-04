@@ -4,9 +4,11 @@ import com.wishlist.Exceptions.EntityDoesNotExistException;
 import com.wishlist.Exceptions.ZeroRowsAffectedOnUpdateException;
 import com.wishlist.Model.Product;
 import com.wishlist.Repository.ProductRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class ProductService {
     private final ProductRepository productRepository;
 

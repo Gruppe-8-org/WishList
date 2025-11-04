@@ -6,9 +6,11 @@ import com.wishlist.Model.User;
 import com.wishlist.Model.Wishlist;
 import com.wishlist.Repository.UserRepository;
 import com.wishlist.Repository.WishlistRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class WishlistService {
     private final UserRepository userRepository;
     private final WishlistRepository wishlistRepository;

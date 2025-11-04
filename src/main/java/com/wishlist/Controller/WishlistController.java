@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Controller
-@RequestMapping("/user/{id}/wishlist")
+@RequestMapping("/user/{uid}/wishlist")
 public class WishlistController {
     private final WishlistService wishlistService;
     private final ProductService productService;
@@ -32,7 +32,7 @@ public class WishlistController {
 
     //I postmappen har jeg kommenteret på sessions, det skal højst sandsynligt tilføjes til dem alle, for netop at knytte det til et ID
     @GetMapping("/create")
-    public String showCreateForm(Model model, @PathVariable("id") int id) {
+    public String showCreateForm(Model model, @PathVariable("uid") int id) {
        Wishlist newWishlist = new Wishlist(0, null, 0, null, null);
        List<Product> allProducts = productService.getAllProducts();
        model.addAttribute("newWishlist", newWishlist);
@@ -41,7 +41,7 @@ public class WishlistController {
     }
 
     @PostMapping("/create")
-    public String addWishlist(@ModelAttribute Wishlist newWishlist, @RequestParam int id) {
+    public String addWishlist(@ModelAttribute Wishlist newWishlist, @RequestParam int id, @PathVariable int uid) {
 
         newWishlist.setProducts(new ArrayList<>());
         newWishlist.setAuthor(id);
@@ -53,9 +53,9 @@ public class WishlistController {
         return "redirect:/user/{id}/wishlist/" + newWishlist.getID();
     }
 
-    @GetMapping("/{id}/update")
-    public String updateWishlist(Model model, @PathVariable int id) {
-        Wishlist updateWishlist = wishlistService.getWishlistByID(id);
+    @GetMapping("/{wid}/update")
+    public String updateWishlist(Model model, @PathVariable int wid, @PathVariable(value="uid") int id) {
+        Wishlist updateWishlist = wishlistService.getWishlistByID(wid);
         List<Product> allProducts = productService.getAllProducts();
 
         model.addAttribute("updateWishlist", updateWishlist);
@@ -63,8 +63,8 @@ public class WishlistController {
         return "wishlistupdateform";
     }
 
-    @PostMapping("/{id}/update")
-    public String updateWishlist(@ModelAttribute Wishlist updateWishlist) {
+    @PostMapping("/{wid}/update")
+    public String updateWishlist(@ModelAttribute Wishlist updateWishlist, @PathVariable int wid, @PathVariable(value="uid") int id) {
         wishlistService.updateWishlist(updateWishlist, new ArrayList<>());
 
         return "redirect:/user/{id}";
@@ -88,8 +88,8 @@ public class WishlistController {
 }*/
 
     //her skal vi også have tilføjet sessions.
-    @GetMapping("/{id}")
-    public String viewWishlist(@PathVariable("id") int id, Model model) {
+    @GetMapping("/{wid}")
+    public String viewWishlist(@PathVariable int wid, @PathVariable("uid") int id, Model model) {
         Wishlist wishlist = wishlistService.getWishlistByID(id);
         List<WishlistProduct> wishlistProducts = wishlist.getProducts();
 
@@ -98,17 +98,17 @@ public class WishlistController {
         return "renderwishlist";
     }
 
-    @GetMapping("/{id}/delete")
-    public String deleteWishList(Model model, @PathVariable int id) {
-        Wishlist deleteWishlist = wishlistService.getWishlistByID(id);
+    @GetMapping("/{wid}/delete")
+    public String deleteWishList(Model model, @PathVariable int uid, @PathVariable int wid) {
+        Wishlist deleteWishlist = wishlistService.getWishlistByID(wid);
 
         model.addAttribute("deleteWishlist", deleteWishlist);
         return "wishlistdeleteform";
     }
 
-    @PostMapping("/{id}/delete")
-    public String deleteWishlist(@PathVariable int id) {
-        wishlistService.deleteWishlistByID(id);
+    @PostMapping("/{wid}/delete")
+    public String deleteWishlist(@PathVariable int wid, @PathVariable int uid) {
+        wishlistService.deleteWishlistByID(wid);
         return "redirect:/user/{id}";
     }
 

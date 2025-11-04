@@ -6,14 +6,17 @@ import com.wishlist.Model.Wishlist;
 import com.wishlist.Model.WishlistProduct;
 import com.wishlist.Service.ProductService;
 import com.wishlist.Service.WishlistService;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
 @Controller
 @RequestMapping("/")
+@ComponentScan("com.wishlist.Service")
 public class ProductController {
     private final ProductService productService;
 
