@@ -55,6 +55,19 @@ class RepositoryTests {
     }
 
     @Test
+    public void getExistingUserByUNameGetsDesiredUser() {
+        User u = userRepository.getUserByUsername("lildawg");
+        assertThat(u).isNotNull();
+        assertThat(u.getName()).isEqualTo("Max-Emil");
+        assertThat(u.getPassword()).isEqualTo("01101001");
+    }
+
+    @Test
+    public void getNonExistentUserByUNameReturnsNull() {
+        assertThat(userRepository.getUserByUsername("Jørgen")).isNull();
+    }
+
+    @Test
     public void addUserOnNewUserActuallyUpdates() {
         assertThat(userRepository.getUserByID(4)).isNull();
 
