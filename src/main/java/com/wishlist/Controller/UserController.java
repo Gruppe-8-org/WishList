@@ -35,18 +35,16 @@ public class UserController {
 
     @GetMapping("/login")
     public String LoginUser(Model model) {
-        String username = null;
-        String password = null;
-        model.addAttribute("username", username);
-        model.addAttribute("password", password);
+        User emptyUser = new User();
+        model.addAttribute("user", emptyUser);
         return "login-user";
     }
 
     @PostMapping("/login")
-    public String loginUser(@ModelAttribute String username, @ModelAttribute String password) {
-        userService.login(username, password);
-        User u = userService.getUserByUsername(username);
-        return "redirect:/user/" + u.getID();
+    public String loginUser(@ModelAttribute User user) {
+        int userID = userService.getUserByUsername(user.getUsername()).getID();
+        userService.login(user.getUsername(), user.getPassword());
+        return "redirect:/user/" + userID;
     }
 
     @GetMapping("/{uid}")

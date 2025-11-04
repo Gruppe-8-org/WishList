@@ -7,11 +7,11 @@
 </head>
 <body>
 
-<div th:replace="~{fragments/header :: header}"></div>
+<!--<div th:replace="~{fragments/header :: header}"></div>-->
 
 <main>
     <h1>Add Products</h1>
-    <form th:action="@{/wishlist/save}" th:object="${newWishlist}" method="post">
+    <form th:action="@{/user/{path}/wishlist/add(path=${ID})}" th:object="${newWishlist}" method="post">
         <fieldset>
             <label for="title">Title</label>
             <input id="title" th:field="${newWishlist.title}">
@@ -19,19 +19,21 @@
             <label for="heldOn">Event Date</label>
             <input id="heldOn" th:field="${newWishlist.heldOn}">
 
-            <label for="products">Products</label>
-            <select name="products" id="products" th:field="*{products}">
-                <option value="">--Please Choose--</option>
-                <option th:each="type : ${allProducts}" th:value="${type}" th:text="${type}"></option>
-            </select>
+            <fieldset id="products">
+                <label for="products">Products</label>
+                <div th:each="option, iter : ${allWishlistProducts}">
+                    <input type="checkbox" th:id="${'product-' + iter.index}" th:field="*{productID}" th:value="${option.getProduct().getID()}"/>
+                    <label th:for="${'product-' + iter.index}" th:text="${option.getProduct().getTitle()}"></label>
+                </div>
+            </fieldset>
 
             <button type="submit">Create Wishlist</button>
-            <a th:href="@{'/user/' + ${userByID.ID}}">Cancel</a>
+            <a th:href="@{'/user/' + ${ID}}">Cancel</a>
         </fieldset>
     </form>
 </main>
 
-<div th:replace="~{fragments/footer :: footer}"></div>
+<!--<div th:replace="~{fragments/footer :: footer}"></div>-->
 
 </body>
 </html>

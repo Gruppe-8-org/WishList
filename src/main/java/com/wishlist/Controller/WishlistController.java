@@ -31,20 +31,27 @@ public class WishlistController {
     }
 
     //I postmappen har jeg kommenteret på sessions, det skal højst sandsynligt tilføjes til dem alle, for netop at knytte det til et ID
-    @GetMapping("/create")
+    @GetMapping("/add")
     public String showCreateForm(Model model, @PathVariable("uid") int id) {
        Wishlist newWishlist = new Wishlist();
-       List<Product> allProducts = productService.getAllProducts();
+       List<WishlistProduct> allWishlistProducts = productService.getAllWishlistProducts();
+       List<Integer> productID = new ArrayList<>();
+       model.addAttribute("ID", id);
        model.addAttribute("newWishlist", newWishlist);
-       model.addAttribute("allProducts", allProducts);
+       model.addAttribute("allWishlistProducts", allWishlistProducts);
+       model.addAttribute("productID", productID);
        return "wishlistcreateform";
     }
 
-    @PostMapping("/create")
-    public String addWishlist(@ModelAttribute Wishlist newWishlist, @RequestParam int id, @PathVariable int uid) {
+    @PostMapping("/add")
+    public String addWishlist(@ModelAttribute Wishlist newWishlist, @ModelAttribute List<WishlistProduct> allWishlistProducts, @ModelAttribute List<Integer> productID, @RequestParam int authorID, @PathVariable int uid) {
 
+        List<WishlistProduct> wProducts = new ArrayList<>();
+        for (int id : productID ) {
+            wProducts.add(new WishlistProduct(productService.getProductByID(id), 0, "desc"));
+        }
         newWishlist.setProducts(new ArrayList<>());
-        newWishlist.setAuthor(id);
+        newWishlist.setAuthor(authorID);
         List<User> guests = new ArrayList<>();
         newWishlist.setTitle(newWishlist.getTitle());
 

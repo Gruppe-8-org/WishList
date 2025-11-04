@@ -9,7 +9,7 @@
 <h2>Submit Credentials</h2>
 
 
-<form th:action="@{/user/login}" method="post">
+<form th:action="@{/user/login}" th:object="${user}" method="post">
 
 
     <label for="username">Username:</label>

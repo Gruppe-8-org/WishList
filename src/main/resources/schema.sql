@@ -12,57 +12,57 @@ DROP TABLE IF EXISTS Sessions;
 
 
 CREATE TABLE IF NOT EXISTS Users (
-	UserID INT PRIMARY KEY AUTO_INCREMENT,
-    User_Name VARCHAR(64),
-    Username TEXT UNIQUE,
+                                     UserID INT PRIMARY KEY AUTO_INCREMENT,
+                                     User_Name VARCHAR(64),
+    Username VARCHAR(64) UNIQUE,
     Password TEXT
-);
+    );
 
 CREATE TABLE IF NOT EXISTS Wishlists (
-	WishlistID INT PRIMARY KEY AUTO_INCREMENT,
-    AuthorID INT,
-    WishlistTitle TEXT,
-    HeldOn DATETIME,
-    FOREIGN KEY (AuthorID) REFERENCES Users(UserID) ON DELETE CASCADE
-);
+                                         WishlistID INT PRIMARY KEY AUTO_INCREMENT,
+                                         AuthorID INT,
+                                         WishlistTitle TEXT,
+                                         HeldOn DATETIME,
+                                         FOREIGN KEY (AuthorID) REFERENCES Users(UserID) ON DELETE CASCADE
+    );
 
 CREATE TABLE IF NOT EXISTS Products (
-	ProductID INT PRIMARY KEY AUTO_INCREMENT,
-    ProductTitle TEXT,
-    ProductPrice DOUBLE,
-    ProductManufacturer TEXT,
-    ProductPathToImage VARCHAR(512)
-);
+                                        ProductID INT PRIMARY KEY AUTO_INCREMENT,
+                                        ProductTitle TEXT,
+                                        ProductPrice DOUBLE,
+                                        ProductManufacturer TEXT,
+                                        ProductPathToImage VARCHAR(512)
+    );
 
 CREATE TABLE IF NOT EXISTS WishlistProducts (
-	WishlistID INT,
-    ProductID INT,
-    ReservedBy INT NULL,
-    Description TEXT,
-    PRIMARY KEY (WishlistID, ProductID),
+                                                WishlistID INT,
+                                                ProductID INT,
+                                                ReservedBy INT NULL,
+                                                Description TEXT,
+                                                PRIMARY KEY (WishlistID, ProductID),
     FOREIGN KEY (WishlistID) REFERENCES Wishlists(WishlistID) ON DELETE CASCADE,
     FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE CASCADE,
     FOREIGN KEY (ReservedBy) REFERENCES Users(UserID) ON DELETE SET NULL
-);
+    );
 
 CREATE TABLE IF NOT EXISTS WishlistGuests (
-	WishlistID INT,
-    UserID INT,
-	PRIMARY KEY (WishlistID, UserID),
+                                              WishlistID INT,
+                                              UserID INT,
+                                              PRIMARY KEY (WishlistID, UserID),
     FOREIGN KEY (WishlistID) REFERENCES Wishlists(WishlistID) ON DELETE CASCADE,
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
-);
+    );
 
 CREATE TABLE IF NOT EXISTS SPRING_SESSION (
-                                PRIMARY_ID CHAR(36) NOT NULL,
-                                SESSION_ID CHAR(36) NOT NULL,
-                                CREATION_TIME BIGINT NOT NULL,
-                                LAST_ACCESS_TIME BIGINT NOT NULL,
-                                MAX_INACTIVE_INTERVAL INT NOT NULL,
-                                EXPIRY_TIME BIGINT NOT NULL,
-                                PRINCIPAL_NAME VARCHAR(100),
-                                CONSTRAINT SPRING_SESSION_PK PRIMARY KEY (PRIMARY_ID)
-);
+                                              PRIMARY_ID CHAR(36) NOT NULL,
+    SESSION_ID CHAR(36) NOT NULL,
+    CREATION_TIME BIGINT NOT NULL,
+    LAST_ACCESS_TIME BIGINT NOT NULL,
+    MAX_INACTIVE_INTERVAL INT NOT NULL,
+    EXPIRY_TIME BIGINT NOT NULL,
+    PRINCIPAL_NAME VARCHAR(100),
+    CONSTRAINT SPRING_SESSION_PK PRIMARY KEY (PRIMARY_ID)
+    );
 
 CREATE UNIQUE INDEX SPRING_SESSION_IX1 ON SPRING_SESSION (SESSION_ID);
 CREATE INDEX SPRING_SESSION_IX2 ON SPRING_SESSION (EXPIRY_TIME);

@@ -3,6 +3,7 @@ package com.wishlist.Service;
 import com.wishlist.Exceptions.EntityDoesNotExistException;
 import com.wishlist.Exceptions.ZeroRowsAffectedOnUpdateException;
 import com.wishlist.Model.Product;
+import com.wishlist.Model.WishlistProduct;
 import com.wishlist.Repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,10 @@ public class ProductService {
 
     public List<Product> getAllProducts() {
         return productRepository.getAllProducts();
+    }
+
+    public List<WishlistProduct> getAllWishlistProducts() {
+        return productRepository.getAllWishlistProducts();
     }
 
     public Product getProductByID(int productID) {
