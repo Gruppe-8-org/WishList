@@ -38,6 +38,18 @@ public class UserRepository {
         return userToReturn;
     }
 
+    public User getUserByUsername(String username) {
+        User userToReturn;
+
+        try {
+            userToReturn = jdbcTemplate.queryForObject("SELECT * FROM Users WHERE Username = ?", userRowMapper, username);
+        } catch (EmptyResultDataAccessException erdae) {
+            userToReturn = null;
+        }
+
+        return userToReturn;
+    }
+
     public int addUser(User user) {
         return jdbcTemplate.update("INSERT IGNORE INTO Users (User_Name, Username, Password) VALUES (?, ?, ?);",
                 user.getName(), user.getUsername(), user.getPassword());
