@@ -10,26 +10,34 @@
 <!--<div th:replace="~{fragments/header :: header}"></div>-->
 
 <main>
-    <h1>Add Products</h1>
-    <form th:action="@{/user/{path}/wishlist/add(path=${ID})}" th:object="${newWishlist}" method="post">
+    <h1>Create a wishlist!</h1>
+    <form th:action="@{/user/{path}/wishlist/add(path=${ID})}" th:object="${wishlistDTO}" method="post">
         <fieldset>
             <label for="title">Title</label>
-            <input id="title" th:field="${newWishlist.title}">
+            <input id="title" th:field="*{wishlistTitle}" required>
 
             <label for="heldOn">Event Date</label>
-            <input id="heldOn" th:field="${newWishlist.heldOn}">
+            <input type="date" id="heldOn" th:field="*{wishlistHeldOn}" required>
 
-            <fieldset id="products">
-                <label for="products">Products</label>
-                <div th:each="option, iter : ${allWishlistProducts}">
-                    <input type="checkbox" th:id="${'product-' + iter.index}" th:field="*{productID}" th:value="${option.getProduct().getID()}"/>
-                    <label th:for="${'product-' + iter.index}" th:text="${option.getProduct().getTitle()}"></label>
+            <fieldset>
+                <legend>Add Products</legend>
+                <div th:each="product : ${allProducts}">
+                    <input type="checkbox" th:id="'product-' + ${product.getID()}" th:value="${product.getID()}" th:text="${product.getTitle()}" th:field="*{productIDs}">
+                    <label for="description">Description</label>
+                    <input id="description" type="text" th:field="*{productDescriptions}" required>
                 </div>
             </fieldset>
 
-            <button type="submit">Create Wishlist</button>
-            <a th:href="@{'/user/' + ${ID}}">Cancel</a>
+            <fieldset>
+                <legend>Add guests</legend>
+                <div th:each="user : ${allUsers}">
+                    <input type="checkbox" th:id="'product-' + ${user.getID()}" th:value="${user.getID()}" th:text="${user.getUsername()}" th:field="*{guestIDs}">
+                </div>
+            </fieldset>
         </fieldset>
+
+        <input type="submit" value="Create Wishlist" />
+        <a th:href="@{'/user/' + ${ID}}">Cancel</a>
     </form>
 </main>
 

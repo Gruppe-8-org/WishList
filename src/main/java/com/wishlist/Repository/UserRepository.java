@@ -7,6 +7,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public class UserRepository {
     @Value("${spring.datasource.url}")
@@ -48,6 +50,10 @@ public class UserRepository {
         }
 
         return userToReturn;
+    }
+
+    public List<User> getAllUsers() {
+        return jdbcTemplate.query("SELECT * FROM Users;", userRowMapper);
     }
 
     public int addUser(User user) {

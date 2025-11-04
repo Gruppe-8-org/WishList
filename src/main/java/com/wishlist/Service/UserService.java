@@ -7,6 +7,7 @@ import com.wishlist.Repository.ProductRepository;
 import com.wishlist.Repository.UserRepository;
 import com.wishlist.Repository.WishlistRepository;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -28,6 +29,10 @@ public class UserService {
         }
 
         return user;
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.getAllUsers();
     }
 
     public void addUser(User user) {

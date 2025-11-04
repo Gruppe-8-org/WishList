@@ -1,16 +1,16 @@
 package com.wishlist.Model;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 public class Wishlist {
     private int ID;
     private String title;
     private int authorID;
-    private Date heldOn;
+    private LocalDate heldOn;
     private List<WishlistProduct> products;
 
-    public Wishlist(int ID, String title, int authorID, Date heldOn, List<WishlistProduct> products) {
+    public Wishlist(int ID, String title, int authorID, LocalDate heldOn, List<WishlistProduct> products) {
         this.ID = ID;
         this.title = title;
         this.authorID = authorID;
@@ -30,11 +30,11 @@ public class Wishlist {
         this.title = title;
     }
 
-    public Date getHeldOn() {
+    public LocalDate getHeldOn() {
         return heldOn;
     }
 
-    public void setHeldOn(Date heldOn) {
+    public void setHeldOn(LocalDate heldOn) {
         this.heldOn = heldOn;
     }
 

@@ -16,6 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -314,7 +315,7 @@ class RepositoryTests {
                 product -> new WishlistProduct(product, 0, "Link to product:")
         ).toList();
 
-        Wishlist newWishlist = new Wishlist(4, "Max-Emils Julegaveønsker", 3, Date.from(Instant.now()), wlProducts);
+        Wishlist newWishlist = new Wishlist(4, "Max-Emils Julegaveønsker", 3, LocalDate.now(), wlProducts);
         wishlistRepository.addWishlist(newWishlist, List.of(userRepository.getUserByID(1), userRepository.getUserByID(2)));
 
         for (Product product : productsWishedFor) {
@@ -492,7 +493,7 @@ class RepositoryTests {
                 product -> new WishlistProduct(product, 0, "Link to product:")
         ).toList();
 
-        wishlistRepository.addWishlist(new Wishlist(4, "Markus' julegaveønsker", 1, Date.from(Instant.now()), wlProducts), List.of(userRepository.getUserByID(2), userRepository.getUserByID(3)));
+        wishlistRepository.addWishlist(new Wishlist(4, "Markus' julegaveønsker", 1, LocalDate.now(), wlProducts), List.of(userRepository.getUserByID(2), userRepository.getUserByID(3)));
         int rowsAffected = wishlistRepository.deleteWishlistsByUser(1);
         assertThat(rowsAffected).isEqualTo(2);
     }

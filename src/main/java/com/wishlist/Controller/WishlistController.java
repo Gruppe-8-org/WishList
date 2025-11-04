@@ -1,17 +1,17 @@
 package com.wishlist.Controller;
 
 
-import com.wishlist.Model.Product;
-import com.wishlist.Model.User;
-import com.wishlist.Model.Wishlist;
-import com.wishlist.Model.WishlistProduct;
+import com.wishlist.Model.*;
+import com.wishlist.Repository.UserRepository;
 import com.wishlist.Service.ProductService;
+import com.wishlist.Service.UserService;
 import com.wishlist.Service.WishlistService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -19,10 +19,14 @@ import java.util.List;
 public class WishlistController {
     private final WishlistService wishlistService;
     private final ProductService productService;
+    private final UserRepository userRepository;
+    private final UserService userService;
 
-    public WishlistController(WishlistService wishlistService, ProductService productService) {
+    public WishlistController(WishlistService wishlistService, ProductService productService, UserRepository userRepository, UserService userService) {
         this.wishlistService = wishlistService;
         this.productService = productService;
+        this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     @GetMapping("/")
@@ -33,31 +37,34 @@ public class WishlistController {
     //I postmappen har jeg kommenteret på sessions, det skal højst sandsynligt tilføjes til dem alle, for netop at knytte det til et ID
     @GetMapping("/add")
     public String showCreateForm(Model model, @PathVariable("uid") int id) {
-       Wishlist newWishlist = new Wishlist();
-       List<WishlistProduct> allWishlistProducts = productService.getAllWishlistProducts();
-       List<Integer> productID = new ArrayList<>();
+       List<Product> allProducts = productService.getAllProducts();
+       List<User> allUsers = userService.getAllUsers();
+       WishlistDTO wishlistDTO = new WishlistDTO();
+       model.addAttribute("allUsers", allUsers);
+       model.addAttribute("wishlistDTO", wishlistDTO);
+       model.addAttribute("allProducts", allProducts);
        model.addAttribute("ID", id);
-       model.addAttribute("newWishlist", newWishlist);
-       model.addAttribute("allWishlistProducts", allWishlistProducts);
-       model.addAttribute("productID", productID);
        return "wishlistcreateform";
     }
 
     @PostMapping("/add")
-    public String addWishlist(@ModelAttribute Wishlist newWishlist, @ModelAttribute List<WishlistProduct> allWishlistProducts, @ModelAttribute List<Integer> productID, @RequestParam int authorID, @PathVariable int uid) {
+    public String addWishlist(@ModelAttribute WishlistDTO wishlistDTO, @PathVariable("uid") int authorID) {
+        List<WishlistProduct> products = new ArrayList<>();
 
-        List<WishlistProduct> wProducts = new ArrayList<>();
-        for (int id : productID ) {
-            wProducts.add(new WishlistProduct(productService.getProductByID(id), 0, "desc"));
+        for (int i = 0; i < wishlistDTO.getProductIDs().size(); i++) {
+            products.add(new WishlistProduct(productService.getProductByID(wishlistDTO.getProductIDs().get(i)), 0, wishlistDTO.getProductDescriptions().get(i)));
         }
-        newWishlist.setProducts(new ArrayList<>());
-        newWishlist.setAuthor(authorID);
+
         List<User> guests = new ArrayList<>();
-        newWishlist.setTitle(newWishlist.getTitle());
 
-        wishlistService.addWishlist(newWishlist, guests);
+        for (Integer guestID : wishlistDTO.getGuestIDs()) {
+            guests.add(userRepository.getUserByID(guestID));
+        }
 
-        return "redirect:/user/{id}/wishlist/" + newWishlist.getID();
+        Wishlist wishlist = new Wishlist(0, wishlistDTO.getWishlistTitle(), authorID, wishlistDTO.getWishlistHeldOn(), products);
+
+        wishlistService.addWishlist(wishlist, guests);
+        return "redirect:/user/{uid}";
     }
 
     @GetMapping("/{wid}/update")
