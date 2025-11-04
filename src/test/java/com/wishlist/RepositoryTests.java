@@ -440,6 +440,17 @@ class RepositoryTests {
     }
 
     @Test
+    public void getWishlistGuestsGetsExpectedGuestsOnExistingWishlist() {
+        List<Integer> guestIDsExpected = List.of(2, 3);
+        assertThat(wishlistRepository.getAllWishlistGuests(1).equals(guestIDsExpected));
+    }
+
+    @Test
+    public void getWishlistGuestsReturnsEmptyListOnNonExistentWishlist() {
+        assertThat(wishlistRepository.getAllWishlistGuests(11).size()).isEqualTo(0);
+    }
+
+    @Test
     public void deleteWishlistByIDDeletesExistingWishlist() {
         int numWishlistsBefore = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM Wishlists;", Integer.class);
         assertThat(numWishlistsBefore).isEqualTo(3);

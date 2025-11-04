@@ -3,36 +3,45 @@
 <head>
     <link th:href="@{/style.css?v=1}" rel="stylesheet">
     <meta charset="UTF-8">
-    <title th:text="${updateWishlist.title}"></title>
+    <title th:text="${wishlistDTO.getWishlistTitle()}"></title>
 </head>
 <body>
 
-<div th:replace="~{fragments/header :: header}"></div>
+<!-- <div th:replace="~{fragments/header :: header}"></div> -->
 
 <main>
-    <h1 th:text="'Update ' + ${updateWishlist.title}"></h1>
-    <form th:action="@{/wishlist/update}" th:object="${updateWishlist}"  method="post">
+    <h1>Create a wishlist!</h1>
+    <form th:action="@{/user/{path}/wishlist/update(path=${ID})}" th:object="${wishlistDTO}" method="post">
         <fieldset>
             <label for="title">Title</label>
-            <input id="title" th:field="*{title}" th:value="${title}">
+            <input id="title" th:field="*{wishlistTitle}" th:value="${wishlistDTO.getWishlistTitle()}" required>
 
             <label for="heldOn">Event Date</label>
-            <input id="heldOn" th:field="*{heldOn}" th:value="${heldOn}">
+            <input type="date" id="heldOn" th:field="*{wishlistHeldOn}" th:value="${wishlistDTO.getWishlistHeldOn()}" required>
 
-            <label for="products">Produkter</label>
-            <select name="products" id="products" th:field="*{products}">
-                <option value="">--Vælg venligst--</option>
-                <option th:each="type : ${allProducts}" th:value="${type}" th:text="${type}"></option>
-            </select>
+            <fieldset>
+                <legend>Update Products</legend>
+                <div th:each="product, iter : ${allProducts}">
+                    <input type="checkbox" th:id="'product-' + ${product.getID()}" th:value="${product.getID()}" th:text="${product.getTitle()}" th:field="*{productIDs}" th:checked="${wishlistDTO.getProductIDs().contains(product.getID())}">
+                    <label for="description">Description</label>
+                    <input id="description" type="text" th:field="*{productDescriptions}" th:value="${wishlistDTO.productDescriptions.size() > iter.index ? wishlistDTO.productDescriptions[iter.index] : ' '}" required>
+                </div>
+            </fieldset>
 
-
-            <button type="submit">Save Changes</button>
-            <a th:href="@{'/user/' + ${user.id}}">Cancel</a>
+            <fieldset>
+                <legend>Update guests</legend>
+                <div th:each="user : ${allUsers}">
+                    <input type="checkbox" th:id="'product-' + ${user.getID()}" th:value="${user.getID()}" th:text="${user.getUsername()}" th:field="*{guestIDs}" th:checked="${wishlistDTO.getGuestIDs().contains(user.getID())}">
+                </div>
+            </fieldset>
         </fieldset>
+
+        <input type="submit" value="Update Wishlist" />
+        <a th:href="@{'/user/' + ${ID}}">Cancel</a>
     </form>
 </main>
 
-<div th:replace="~{fragments/footer :: footer}"></div>
+<!-- <div th:replace="~{fragments/footer :: footer}"></div> -->
 
 </body>
 </html>

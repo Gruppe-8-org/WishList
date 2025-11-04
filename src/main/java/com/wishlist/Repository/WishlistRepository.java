@@ -5,9 +5,14 @@ import com.wishlist.RowMappers.WishlistRowMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.time.ZoneId;
 import java.util.List;
 
 @Repository
@@ -31,21 +36,30 @@ public class WishlistRepository {
 
     @Transactional
     public void addWishlist(Wishlist wishlist, List<User> guests) {
-        jdbcTemplate.update("INSERT IGNORE INTO Wishlists (AuthorID, WishlistTitle, HeldOn) VALUES (?, ?, ?);",
-                wishlist.getAuthorID(), wishlist.getTitle(), wishlist.getHeldOn());
+        String sql = "INSERT INTO Wishlists (AuthorID, WishlistTitle, HeldOn) VALUES (?, ?, ?);";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection
+                    .prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setInt(1, wishlist.getAuthorID());
+            ps.setString(2, wishlist.getTitle());
+            ps.setDate(3, java.sql.Date.valueOf(wishlist.getHeldOn().toString()));
+            return ps;
+        }, keyHolder);
 
         for (WishlistProduct wp : wishlist.getProducts()) {
             Product theProduct = wp.getProduct();
-            jdbcTemplate.update("INSERT IGNORE INTO Products (ProductTitle, ProductPrice, ProductManufacturer, ProductPathToImage) VALUES (?, ?, ?, ?);",
-                    theProduct.getTitle(), theProduct.getPrice(), theProduct.getManufacturer(), theProduct.getPathToImage());
+            jdbcTemplate.update("INSERT IGNORE INTO Products (ProductID, ProductTitle, ProductPrice, ProductManufacturer, ProductPathToImage) VALUES (?, ?, ?, ?, ?);",
+                    theProduct.getID(), theProduct.getTitle(), theProduct.getPrice(), theProduct.getManufacturer(), theProduct.getPathToImage());
 
-            jdbcTemplate.update("INSERT IGNORE INTO WishlistProducts (WishlistID, ProductID, Description, ReservedBy) VALUES (?, ?, ?, ?);",
-                    wishlist.getID(), theProduct.getID(), wp.getDescription(), wp.getReserverID() == 0 ? null : wp.getReserverID());
+            jdbcTemplate.update("INSERT INTO WishlistProducts (WishlistID, ProductID, Description, ReservedBy) VALUES (?, ?, ?, ?);",
+                    keyHolder.getKey(), theProduct.getID(), wp.getDescription(), wp.getReserverID() == 0 ? null : wp.getReserverID());
         }
 
         for (User user : guests) {
-            jdbcTemplate.update("INSERT IGNORE INTO WishlistGuests (WishlistID, UserID) VALUES (?, ?);",
-                    wishlist.getID(), user.getID());
+            jdbcTemplate.update("INSERT INTO WishlistGuests (WishlistID, UserID) VALUES (?, ?);",
+                    keyHolder.getKey(), user.getID());
         }
     }
 
@@ -115,5 +129,14 @@ public class WishlistRepository {
 
     public int deleteWishlistsByUser(int userID) {
         return jdbcTemplate.update("DELETE FROM Wishlists WHERE AuthorID = ?;", userID);
+    }
+
+    public List<Integer> getAllWishlistGuests(int wishlistID) {
+        try {
+            return jdbcTemplate.queryForList("SELECT UserID FROM WishlistGuests WHERE WishlistID = ?", Integer.class, wishlistID);
+        }
+        catch (EmptyResultDataAccessException erdae) {
+            return null;
+        }
     }
 }

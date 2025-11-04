@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -51,6 +52,8 @@ public class WishlistController {
     public String addWishlist(@ModelAttribute WishlistDTO wishlistDTO, @PathVariable("uid") int authorID) {
         List<WishlistProduct> products = new ArrayList<>();
 
+        wishlistDTO.setProductDescriptions(wishlistDTO.getProductDescriptions().stream().filter(s -> !s.isEmpty()).toList());
+
         for (int i = 0; i < wishlistDTO.getProductIDs().size(); i++) {
             products.add(new WishlistProduct(productService.getProductByID(wishlistDTO.getProductIDs().get(i)), 0, wishlistDTO.getProductDescriptions().get(i)));
         }
@@ -71,17 +74,38 @@ public class WishlistController {
     public String updateWishlist(Model model, @PathVariable int wid, @PathVariable(value="uid") int id) {
         Wishlist updateWishlist = wishlistService.getWishlistByID(wid);
         List<Product> allProducts = productService.getAllProducts();
+        List<User> allUsers = userService.getAllUsers();
 
-        model.addAttribute("updateWishlist", updateWishlist);
+        WishlistDTO wishlistDTO = new WishlistDTO();
+        wishlistDTO.setWishlistTitle(updateWishlist.getTitle());
+        wishlistDTO.setWishlistHeldOn(updateWishlist.getHeldOn());
+        wishlistDTO.setProductIDs(updateWishlist.getProducts().stream().map(p -> p.getProduct().getID()).toList());
+        wishlistDTO.setGuestIDs(wishlistService.getAllWishlistGuests(updateWishlist.getID()));
+        wishlistDTO.setProductDescriptions(updateWishlist.getProducts().stream().map(WishlistProduct::getDescription).toList());
+        model.addAttribute("wishlistDTO", wishlistDTO);
         model.addAttribute("allProducts", allProducts);
+        model.addAttribute("allUsers", allUsers);
+        model.addAttribute("ID", id);
         return "wishlistupdateform";
     }
 
     @PostMapping("/{wid}/update")
-    public String updateWishlist(@ModelAttribute Wishlist updateWishlist, @PathVariable int wid, @PathVariable(value="uid") int id) {
-        wishlistService.updateWishlist(updateWishlist, new ArrayList<>());
+    public String updateWishlist(@ModelAttribute WishlistDTO wishlistDTO, @PathVariable(value="wid") int wid, @PathVariable(value="uid") int uid) {
+        List<WishlistProduct> products = new ArrayList<>();
 
-        return "redirect:/user/{id}";
+        for (int i = 0; i < wishlistDTO.getProductIDs().size(); i++) {
+            products.add(new WishlistProduct(productService.getProductByID(wishlistDTO.getProductIDs().get(i)), 0, wishlistDTO.getProductDescriptions().get(i)));
+        }
+
+        List<User> guests = new ArrayList<>();
+
+        for (Integer guestID : wishlistDTO.getGuestIDs()) {
+            guests.add(userRepository.getUserByID(guestID));
+        }
+
+        Wishlist updateWishlist = new Wishlist(wid, wishlistDTO.getWishlistTitle(), uid, wishlistDTO.getWishlistHeldOn(), products);
+        wishlistService.updateWishlist(updateWishlist, guests);
+        return "redirect:/user/{uid}";
     }
 
     /*

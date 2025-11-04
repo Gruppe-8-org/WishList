@@ -80,4 +80,7 @@ public class WishlistService {
         }
     }
 
+    public List<Integer> getAllWishlistGuests(int wishlistID) {
+        return wishlistRepository.getAllWishlistGuests(wishlistID);
+    }
 }

@@ -21,10 +21,10 @@
 
             <fieldset>
                 <legend>Add Products</legend>
-                <div th:each="product : ${allProducts}">
+                <div th:each="product, iter : ${allProducts}">
                     <input type="checkbox" th:id="'product-' + ${product.getID()}" th:value="${product.getID()}" th:text="${product.getTitle()}" th:field="*{productIDs}">
                     <label for="description">Description</label>
-                    <input id="description" type="text" th:field="*{productDescriptions}" required>
+                    <input id="description" type="text" th:field="*{productDescriptions}">
                 </div>
             </fieldset>
 
