@@ -33,7 +33,7 @@ public class WishlistController {
     //I postmappen har jeg kommenteret på sessions, det skal højst sandsynligt tilføjes til dem alle, for netop at knytte det til et ID
     @GetMapping("/create")
     public String showCreateForm(Model model, @PathVariable("uid") int id) {
-       Wishlist newWishlist = new Wishlist(0, null, 0, null, null);
+       Wishlist newWishlist = new Wishlist();
        List<Product> allProducts = productService.getAllProducts();
        model.addAttribute("newWishlist", newWishlist);
        model.addAttribute("allProducts", allProducts);

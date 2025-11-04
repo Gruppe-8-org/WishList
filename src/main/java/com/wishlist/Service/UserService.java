@@ -93,12 +93,22 @@ public class UserService {
         userRepository.unreserveWish(wishlistID, productID);
     }
 
-    public boolean login(int userID, String password) {
-        User user = userRepository.getUserByID(userID);
+    public boolean login(String username, String password) {
+        User user = userRepository.getUserByUsername(username);
 
         if (user != null)
             return user.getPassword().equals(password);
 
         return false;
+    }
+
+    public User getUserByUsername (String username) {
+        User user = userRepository.getUserByUsername(username);
+
+        if (user == null) {
+            throw new EntityDoesNotExistException("User with Username " + username + " does not exist.");
+        }
+
+        return user;
     }
 }

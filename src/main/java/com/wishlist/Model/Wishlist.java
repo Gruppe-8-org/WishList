@@ -18,6 +18,10 @@ public class Wishlist {
         this.products = products;
     }
 
+    public Wishlist() {
+
+    }
+
     public String getTitle() {
         return title;
     }

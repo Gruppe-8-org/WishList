@@ -22,7 +22,7 @@ public class UserController {
     }
     @GetMapping("/create")
     public String showCreateForm(Model model) {
-        User newUser = new User(0, null, null, null);
+        User newUser = new User();
         model.addAttribute("newUser", newUser);
         return "add-user";
     }
@@ -34,16 +34,19 @@ public class UserController {
     }
 
     @GetMapping("/login")
-    public String LoginUser(Model model, @ModelAttribute int id) {
-        User loggedUser = userService.getUserByID(id);
-        model.addAttribute("loggedUser", loggedUser);
+    public String LoginUser(Model model) {
+        String username = null;
+        String password = null;
+        model.addAttribute("username", username);
+        model.addAttribute("password", password);
         return "login-user";
     }
 
-    @PostMapping("/start")
-    public String loginUser(@ModelAttribute User loggedUser) {
-        userService.login(loggedUser.getID(), loggedUser.getPassword());
-        return "redirect:/user/" + loggedUser.getID();
+    @PostMapping("/login")
+    public String loginUser(@ModelAttribute String username, @ModelAttribute String password) {
+        userService.login(username, password);
+        User u = userService.getUserByUsername(username);
+        return "redirect:/user/" + u.getID();
     }
 
     @GetMapping("/{uid}")
@@ -55,7 +58,6 @@ public class UserController {
         model.addAttribute("userWishlists", userWishlists);
         return "userByID";
     }
-
 
     @GetMapping("/{uid}/update")
     public String updateUser(Model model, @PathVariable int uid) {
