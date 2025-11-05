@@ -58,7 +58,6 @@ public class WishlistController {
             return "redirect:/user/login";
         }
         List<WishlistProduct> products = new ArrayList<>();
-
         wishlistDTO.setProductDescriptions(wishlistDTO.getProductDescriptions().stream().filter(s -> !s.isEmpty()).toList());
 
         for (int i = 0; i < wishlistDTO.getProductIDs().size(); i++) {
