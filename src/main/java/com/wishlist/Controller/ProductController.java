@@ -1,11 +1,7 @@
 package com.wishlist.Controller;
 
 import com.wishlist.Model.Product;
-import com.wishlist.Model.User;
-import com.wishlist.Model.Wishlist;
-import com.wishlist.Model.WishlistProduct;
 import com.wishlist.Service.ProductService;
-import com.wishlist.Service.WishlistService;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

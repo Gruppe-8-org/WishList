@@ -11,8 +11,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -132,6 +130,8 @@ public class WishlistController {
         Wishlist wishlist = wishlistService.getWishlistByID(id);
         List<WishlistProduct> wishlistProducts = wishlist.getProducts();
 
+        model.addAttribute("WID", wid);
+        model.addAttribute("UID", id);
         model.addAttribute("wishlist", wishlist);
         model.addAttribute("products", wishlistProducts);
         return "renderwishlist";
