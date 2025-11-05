@@ -96,4 +96,13 @@ public class UserRepository {
         return jdbcTemplate.update("UPDATE WishlistProducts SET ReservedBy = NULL WHERE WishlistID = ? AND ProductID = ?",
                 wishlistID, productID);
     }
+
+    public int getReserverID(int wishlistID, int productID) {
+        try {
+            return jdbcTemplate.queryForObject("SELECT ReservedBy FROM WishlistProducts WHERE WishlistID = ? AND ProductID = ?;", Integer.class,
+                    wishlistID, productID);
+        } catch (NullPointerException npe) {
+            return 0;
+        }
+    }
 }

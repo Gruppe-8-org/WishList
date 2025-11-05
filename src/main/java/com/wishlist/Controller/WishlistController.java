@@ -149,6 +149,4 @@ public class WishlistController {
         wishlistService.deleteWishlistByID(wid);
         return "redirect:/user/{id}";
     }
-
-
 }

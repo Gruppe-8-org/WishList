@@ -21,7 +21,7 @@ public class WishlistService {
     }
 
     public void addWishlist(Wishlist wishlist, List<User> guests) {
-        wishlistRepository.addWishlist(wishlist, guests);
+        wishlistRepository.addWishlist(wishlist, guests); // Covered in integration tests due to voidness.
     }
 
     public void updateWishlist(Wishlist wishlist, List<User> guests) {
@@ -29,7 +29,7 @@ public class WishlistService {
             throw new EntityDoesNotExistException("Wishlist with ID " + wishlist.getID() + " does not exist.");
         }
 
-        wishlistRepository.updateWishlist(wishlist, guests);
+        wishlistRepository.updateWishlist(wishlist, guests); // Covered in integration tests due to voidness.
     }
 
     public Wishlist getWishlistByID(int wishlistID) {
@@ -58,7 +58,7 @@ public class WishlistService {
         return wishlistRepository.getAllWishlistsUserIsInvitedTo(userID);
     }
 
-    public void deleteWishlistByID(int wishlistID) {
+    public int deleteWishlistByID(int wishlistID) {
         if (wishlistRepository.getWishlistByID(wishlistID) == null) {
             throw new EntityDoesNotExistException("Wishlist with ID " + wishlistID + " does not exist.");
         }
@@ -67,9 +67,11 @@ public class WishlistService {
         if (rowsAffected < 1) {
             throw new ZeroRowsAffectedOnUpdateException("Zero rows deleted, but wishlist with ID " + wishlistID + " exists.");
         }
+
+        return rowsAffected;
     }
 
-    public void deleteAllWishlistsByUser(int userID) {
+    public int deleteAllWishlistsByUser(int userID) {
         if (userRepository.getUserByID(userID) == null) {
             throw new EntityDoesNotExistException("User with ID " + userID + " does not exist.");
         }
@@ -78,6 +80,8 @@ public class WishlistService {
         if (rowsAffected < 1) {
             throw new ZeroRowsAffectedOnUpdateException("Zero rows deleted, but user with ID " + userID + " exists.");
         }
+
+        return rowsAffected;
     }
 
     public List<Integer> getAllWishlistGuests(int wishlistID) {
