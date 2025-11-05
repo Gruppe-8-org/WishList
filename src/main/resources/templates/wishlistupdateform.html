@@ -10,8 +10,8 @@
 <!-- <div th:replace="~{fragments/header :: header}"></div> -->
 
 <main>
-    <h1>Create a wishlist!</h1>
-    <form th:action="@{/user/{path}/wishlist/update(path=${ID})}" th:object="${wishlistDTO}" method="post">
+    <h1>Update a wishlist!</h1>
+    <form th:action="@{/user/{path}/wishlist/{path2}/update(path=${ID},path2=${WID})}" th:object="${wishlistDTO}" method="post">
         <fieldset>
             <label for="title">Title</label>
             <input id="title" th:field="*{wishlistTitle}" th:value="${wishlistDTO.getWishlistTitle()}" required>

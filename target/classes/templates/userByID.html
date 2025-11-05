@@ -33,7 +33,9 @@
   <a href="/">Log out</a>
 
   <a th:href="@{'/user/' + ${userByID.ID} + '/update'}">Update User</a>
-  <a th:href="@{'/user/' + ${userByID.ID} + '/delete'}">Delete User</a>
+  <form th:action="@{/user/{path}/delete(path=${userByID.ID})}" th:object="${userByID}"  method="post">
+    <button type="submit">Delete User</button>
+  </form>
 </main>
 
 <!--<div th:replace="~{fragments/footer :: footer}"></div>-->

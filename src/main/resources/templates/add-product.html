@@ -3,8 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/style.css?v=1}">
 </head>
 <body>
+<h2>Add Product</h2>
 
+
+<form th:action="@{/user/products/add}" th:object="${newProduct}" method="post">
+
+    <label for="title">Product Title:</label>
+    <input type="text" id="title" th:field="*{title}" required>
+
+    <label for="username">Username:</label>
+    <input type="text" id="username" th:field="*{manufacturer}" required>
+
+    <label for="password">Password:</label>
+    <input type="text" id="password" th:field="*{price}" required>
+
+    <button type="submit">Add Product</button>
+    <a th:href="@{/}">Cancel</a>
+
+</form>
 </body>
 </html>

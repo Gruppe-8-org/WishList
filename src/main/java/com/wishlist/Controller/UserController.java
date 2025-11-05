@@ -1,7 +1,6 @@
 package com.wishlist.Controller;
 
-import com.wishlist.Model.User;
-import com.wishlist.Model.Wishlist;
+import com.wishlist.Model.*;
 import com.wishlist.Service.UserService;
 import com.wishlist.Service.WishlistService;
 import org.springframework.stereotype.Controller;
@@ -58,14 +57,23 @@ public class UserController {
     }
 
     @GetMapping("/{uid}/update")
-    public String updateUser(Model model, @PathVariable int uid) {
-        User updateUser = userService.getUserByID(uid);
-        model.addAttribute("updateUser", updateUser);
+    public String updateUser(Model model, @PathVariable(value="uid") int id) {
+        User updateUser = userService.getUserByID(id);
+
+        User userDTO = new User();
+        userDTO.setName(updateUser.getName());
+        userDTO.setUsername(updateUser.getUsername());
+        userDTO.setPassword(updateUser.getPassword());
+
+        model.addAttribute("ID", id);
+        model.addAttribute("userDTO", userDTO);
         return "update-user";
     }
 
     @PostMapping("/{uid}/update")
-    public String updateUser(@ModelAttribute User updateUser, @PathVariable int uid) {
+    public String updateUser(@ModelAttribute User userDTO, @PathVariable(value="uid") int id) {
+
+        User updateUser = new User(id, userDTO.getName(), userDTO.getUsername(), userDTO.getPassword());
         userService.updateUser(updateUser);
         return "redirect:/user/login";
     }

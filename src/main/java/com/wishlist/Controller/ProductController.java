@@ -15,7 +15,7 @@ import java.util.List;
 
 
 @Controller
-@RequestMapping("/")
+@RequestMapping("/user")
 @ComponentScan("com.wishlist.Service")
 public class ProductController {
     private final ProductService productService;
@@ -56,20 +56,28 @@ public class ProductController {
     @GetMapping("/products/{id}/update")
     public String updateProduct (Model model, @PathVariable int id) {
         Product updateProduct = productService.getProductByID(id);
-        model.addAttribute("updateProduct", updateProduct);
+
+        Product productDTO = new Product();
+        productDTO.setTitle(updateProduct.getTitle());
+        productDTO.setManufacturer(updateProduct.getManufacturer());
+        productDTO.setPrice(updateProduct.getPrice());
+
+        model.addAttribute("ID", id);
+        model.addAttribute("productDTO", productDTO);
         return "update-product";
     }
 
-    @PostMapping("products/{id}/update")
-    public String updateProduct (@ModelAttribute Product updateProduct) {
+    @PostMapping("/products/{id}/update")
+    public String updateProduct (@ModelAttribute Product productDTO, @PathVariable int id) {
+        Product updateProduct = new Product(id, productDTO.getTitle(), productDTO.getManufacturer(), productDTO.getPathToImage(), productDTO.getPrice());
         productService.updateProduct(updateProduct);
-        return "redirect:/products";
+        return "redirect:/user/products";
     }
 
-    @PostMapping("products/{id}/delete")
+    @PostMapping("/products/{id}/delete")
     public String deleteProduct (@PathVariable int id) {
         productService.deleteProductByID(id);
-        return "redirect:/products";
+        return "redirect:/user/products";
     }
 
 

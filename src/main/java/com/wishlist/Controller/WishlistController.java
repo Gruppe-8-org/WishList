@@ -86,6 +86,7 @@ public class WishlistController {
         model.addAttribute("allProducts", allProducts);
         model.addAttribute("allUsers", allUsers);
         model.addAttribute("ID", id);
+        model.addAttribute("WID", wid);
         return "wishlistupdateform";
     }
 
@@ -141,13 +142,15 @@ public class WishlistController {
         Wishlist deleteWishlist = wishlistService.getWishlistByID(wid);
 
         model.addAttribute("deleteWishlist", deleteWishlist);
+        model.addAttribute("UID", uid);
+        model.addAttribute("WID", wid);
         return "wishlistdeleteform";
     }
 
     @PostMapping("/{wid}/delete")
     public String deleteWishlist(@PathVariable int wid, @PathVariable int uid) {
         wishlistService.deleteWishlistByID(wid);
-        return "redirect:/user/{id}";
+        return "redirect:/user/{uid}";
     }
 
 
