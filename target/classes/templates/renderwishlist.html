@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <link th:href="@{/style.css?v=1}" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title th:text="${wishlist.title}"></title>
+</head>
+
+<h1 th:text="Dato for begivenhed + ${wishlist.heldOn}"></h1>
+
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main>
+  <h2>Products</h2>
+  <table>
+    <thead>
+    <tr>
+      <th>Title</th>
+      <th>Manufacturer</th>
+      <th>Price</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="wishlistproduct: ${wishlistproducts}">
+      <td th:text="${wishlistproduct.title}"></td>
+      <td th:text="${wishlistproduct.manufacturer}"></td>
+      <td th:text="${wishlistproduct.price}"></td>
+
+      <td><a th:href="@{'/user/' + ${user.id} + '/wishlist/' + ${wishlist.id} + '/update'}">Update Wishlist</a></td>
+      <td><a th:href="@{'/user/' + ${user.id} + '/wishlist/' + ${wishlist.id} + '/delete'}">Delete Wishlist</a></td>
+    </tr>
+    </tbody>
+  </table>
+  <a th:href="'/user/' + ${user.id}">Return to User Profile</a>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

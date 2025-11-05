@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link th:href="@{/style.css?v=1}" rel="stylesheet">
+    <meta charset="UTF-8">
+    <title>Products</title>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main>
+    <h1>Available Products</h1>
+    <table>
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Manufacturer</th>
+            <th>Price</th>
+            <th>Image</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="product: ${products}">
+            <td th:text="${product.title}"></td>
+            <td th:text="${product.manufacturer}"></td>
+            <td th:text="${product.price}"></td>
+            <td th:text="${product.pathToImage}"></td>
+
+            <td><a th:href="@{'/products/' + ${product.ID}}">Check Product</a></td>
+            <td><a th:href="@{'/products/' + ${product.ID} + '/update'}">Update Product</a></td>
+            <td><a th:href="@{'/products/' + ${product.ID} + '/delete'}">Delete Product</a></td>
+        </tr>
+        </tbody>
+    </table>
+    <a th:href="@{'/products/add'}">Add Product</a>
+    <a href="/">Log out</a>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

@@ -7,6 +7,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public class UserRepository {
     @Value("${spring.datasource.url}")
@@ -50,6 +52,10 @@ public class UserRepository {
         return userToReturn;
     }
 
+    public List<User> getAllUsers() {
+        return jdbcTemplate.query("SELECT * FROM Users;", userRowMapper);
+    }
+
     public int addUser(User user) {
         return jdbcTemplate.update("INSERT IGNORE INTO Users (User_Name, Username, Password) VALUES (?, ?, ?);",
                 user.getName(), user.getUsername(), user.getPassword());
@@ -89,5 +95,14 @@ public class UserRepository {
     public int unreserveWish(int wishlistID, int productID) {
         return jdbcTemplate.update("UPDATE WishlistProducts SET ReservedBy = NULL WHERE WishlistID = ? AND ProductID = ?",
                 wishlistID, productID);
+    }
+
+    public int getReserverID(int wishlistID, int productID) {
+        try {
+            return jdbcTemplate.queryForObject("SELECT ReservedBy FROM WishlistProducts WHERE WishlistID = ? AND ProductID = ?;", Integer.class,
+                    wishlistID, productID);
+        } catch (NullPointerException npe) {
+            return 0;
+        }
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -25,7 +26,7 @@ public class WishlistRowMapper implements RowMapper<Wishlist> {
         int wishlistID = rs.getInt("WishlistID");
         String wishlistTitle = rs.getString("WishlistTitle");
         int wishlistAuthorID = rs.getInt("AuthorID");
-        Date wishlistHeldOn = rs.getDate("HeldOn");
+        LocalDate wishlistHeldOn = rs.getDate("HeldOn").toLocalDate();
 
         do {
             WishlistProduct wishlistProduct = wishlistProductRowMapper.mapRow(rs, rowNum);

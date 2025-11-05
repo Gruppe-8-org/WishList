@@ -1,7 +1,9 @@
 package com.wishlist.Repository;
 
 import com.wishlist.Model.Product;
+import com.wishlist.Model.WishlistProduct;
 import com.wishlist.RowMappers.ProductRowMapper;
+import com.wishlist.RowMappers.WishlistProductRowMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -22,14 +24,20 @@ public class ProductRepository {
 
     protected final JdbcTemplate jdbcTemplate;
     protected final ProductRowMapper productRowMapper;
+    protected final WishlistProductRowMapper wishlistProductRowMapper;
 
-    public ProductRepository(JdbcTemplate jdbcTemplate, ProductRowMapper productRowMapper) {
+    public ProductRepository(JdbcTemplate jdbcTemplate, ProductRowMapper productRowMapper, WishlistProductRowMapper wishlistProductRowMapper) {
         this.jdbcTemplate = jdbcTemplate;
         this.productRowMapper = productRowMapper;
+        this.wishlistProductRowMapper = wishlistProductRowMapper;
     }
 
     public List<Product> getAllProducts() {
         return jdbcTemplate.query("SELECT * FROM Products;", productRowMapper);
+    }
+
+    public List<WishlistProduct> getAllWishlistProducts() {
+        return jdbcTemplate.query("SELECT * FROM Products LEFT JOIN WishlistProducts ON Products.ProductID = WishlistProducts.ProductID ;", wishlistProductRowMapper);
     }
 
     public int updateProduct(Product product) {
