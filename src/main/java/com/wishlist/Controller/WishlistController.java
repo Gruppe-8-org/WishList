@@ -6,6 +6,8 @@ import com.wishlist.Repository.UserRepository;
 import com.wishlist.Service.ProductService;
 import com.wishlist.Service.UserService;
 import com.wishlist.Service.WishlistService;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -33,9 +35,12 @@ public class WishlistController {
         return "index";
     }
 
-    //I postmappen har jeg kommenteret på sessions, det skal højst sandsynligt tilføjes til dem alle, for netop at knytte det til et ID
     @GetMapping("/add")
-    public String showCreateForm(Model model, @PathVariable("uid") int id) {
+    public String showCreateForm(Model model, @PathVariable("uid") int id, HttpSession session) {
+        Integer userId = (Integer) session.getAttribute("userID");
+        if (userId == null || !userId.equals(id)) {
+            return "redirect:/user/login";
+        }
        List<Product> allProducts = productService.getAllProducts();
        List<User> allUsers = userService.getAllUsers();
        WishlistDTO wishlistDTO = new WishlistDTO();
@@ -47,7 +52,11 @@ public class WishlistController {
     }
 
     @PostMapping("/add")
-    public String addWishlist(@ModelAttribute WishlistDTO wishlistDTO, @PathVariable("uid") int authorID) {
+    public String addWishlist(@ModelAttribute WishlistDTO wishlistDTO, @PathVariable("uid") int authorID, HttpSession session) {
+        Integer userId = (Integer) session.getAttribute("userID");
+        if (userId == null || !userId.equals(authorID)) {
+            return "redirect:/user/login";
+        }
         List<WishlistProduct> products = new ArrayList<>();
 
         wishlistDTO.setProductDescriptions(wishlistDTO.getProductDescriptions().stream().filter(s -> !s.isEmpty()).toList());
@@ -69,7 +78,11 @@ public class WishlistController {
     }
 
     @GetMapping("/{wid}/update")
-    public String updateWishlist(Model model, @PathVariable int wid, @PathVariable(value="uid") int id) {
+    public String updateWishlist(Model model, @PathVariable int wid, @PathVariable ("uid") int uid, HttpSession session) {
+        Integer userId = (Integer) session.getAttribute("userID");
+        if (userId == null || !userId.equals(uid)) {
+            return "redirect:/user/login";
+        }
         Wishlist updateWishlist = wishlistService.getWishlistByID(wid);
         List<Product> allProducts = productService.getAllProducts();
         List<User> allUsers = userService.getAllUsers();
@@ -83,13 +96,16 @@ public class WishlistController {
         model.addAttribute("wishlistDTO", wishlistDTO);
         model.addAttribute("allProducts", allProducts);
         model.addAttribute("allUsers", allUsers);
-        model.addAttribute("ID", id);
         model.addAttribute("WID", wid);
         return "wishlistupdateform";
     }
 
     @PostMapping("/{wid}/update")
-    public String updateWishlist(@ModelAttribute WishlistDTO wishlistDTO, @PathVariable(value="wid") int wid, @PathVariable(value="uid") int uid) {
+    public String updateWishlist(@ModelAttribute WishlistDTO wishlistDTO, @PathVariable(value="wid") int wid, @PathVariable(value="uid") int uid, HttpSession session) {
+        Integer userId = (Integer) session.getAttribute("userID");
+        if (userId == null || !userId.equals(uid)) {
+            return "redirect:/user/login";
+        }
         List<WishlistProduct> products = new ArrayList<>();
 
         for (int i = 0; i < wishlistDTO.getProductIDs().size(); i++) {
@@ -107,27 +123,13 @@ public class WishlistController {
         return "redirect:/user/{uid}";
     }
 
-    /*
-    public String addWishlist(@RequestParam String wishlistName, HttpSession session) {
-           Integer userId = (Integer) session.getAttribute("userId");
-           if (userId == null) {
-               return "redirect:/";
-           }
-
-       Wishlist wishlist = new Wishlist();
-       List<User> guests = new ArrayList<>();
-       wishlist.setTitle(wishlistName);
-
-       wishlist.setID(userId);
-
-       wishlistService.addWishlist(wishlist, guests);
-       return "redirect:/wishlist";
-}*/
-
-    //her skal vi også have tilføjet sessions.
     @GetMapping("/{wid}")
-    public String viewWishlist(@PathVariable int wid, @PathVariable("uid") int id, Model model) {
-        Wishlist wishlist = wishlistService.getWishlistByID(id);
+    public String viewWishlist(@PathVariable int wid, @PathVariable("uid") int id, Model model, HttpSession session) {
+        Integer userId = (Integer) session.getAttribute("userID");
+        if (userId == null || !userId.equals(id)) {
+            return "redirect:/user/login";
+        }
+        Wishlist wishlist = wishlistService.getWishlistByID(wid);
         List<WishlistProduct> wishlistProducts = wishlist.getProducts();
 
         model.addAttribute("WID", wid);
@@ -138,7 +140,11 @@ public class WishlistController {
     }
 
     @GetMapping("/{wid}/delete")
-    public String deleteWishList(Model model, @PathVariable int uid, @PathVariable int wid) {
+    public String deleteWishList(Model model, @PathVariable int uid, @PathVariable int wid, HttpSession session) {
+        Integer userId = (Integer) session.getAttribute("userID");
+        if (userId == null || !userId.equals(uid)) {
+            return "redirect:/user/login";
+        }
         Wishlist deleteWishlist = wishlistService.getWishlistByID(wid);
 
         model.addAttribute("deleteWishlist", deleteWishlist);
@@ -148,7 +154,11 @@ public class WishlistController {
     }
 
     @PostMapping("/{wid}/delete")
-    public String deleteWishlist(@PathVariable int wid, @PathVariable int uid) {
+    public String deleteWishlist(@PathVariable int wid, @PathVariable int uid, HttpSession session) {
+        Integer userId = (Integer) session.getAttribute("userID");
+        if (userId == null || !userId.equals(uid)) {
+            return "redirect:/user/login";
+        }
         wishlistService.deleteWishlistByID(wid);
         return "redirect:/user/{uid}";
     }

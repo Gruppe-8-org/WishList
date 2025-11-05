@@ -46,7 +46,7 @@ public class ProductController {
     @PostMapping("/products/add")
     public String addProduct (@ModelAttribute Product newProduct) {
         productService.addProduct(newProduct);
-        return "redirect:/products";
+        return "redirect:/user/products";
     }
 
     @GetMapping("/products/{id}/update")
@@ -57,6 +57,7 @@ public class ProductController {
         productDTO.setTitle(updateProduct.getTitle());
         productDTO.setManufacturer(updateProduct.getManufacturer());
         productDTO.setPrice(updateProduct.getPrice());
+        productDTO.setPathToImage(updateProduct.getPathToImage());
 
         model.addAttribute("ID", id);
         model.addAttribute("productDTO", productDTO);

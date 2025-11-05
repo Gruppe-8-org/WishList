@@ -32,9 +32,10 @@
     </tr>
     </tbody>
   </table>
-  <form th:action="@{/user/products/{value}/update(value=${productByID.ID})}" th:object="${productByID}"  method="post">
+  <form th:action="@{/user/products/{id}/delete(id=${productByID.ID})}" method="post">
     <button type="submit">Delete Product</button>
   </form>
+
 
   <a th:href="'/user/products'">Return to Overview of Products</a>
 </main>

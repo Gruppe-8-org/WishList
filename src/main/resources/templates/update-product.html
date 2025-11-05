@@ -20,6 +20,8 @@
     <label for="password">Price:</label>
     <input type="text" id="password" th:field="*{price}" required>
 
+    <input type="hidden" th:field="*{pathToImage}" th:value="${productDTO.pathToImage}">
+
     <button type="submit">Update Product</button>
     <a th:href="@{/}">Cancel</a>
 
