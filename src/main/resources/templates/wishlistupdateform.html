@@ -10,8 +10,8 @@
 <!-- <div th:replace="~{fragments/header :: header}"></div> -->
 
 <main>
-    <h1>Create a wishlist!</h1>
-    <form th:action="@{/user/{path}/wishlist/update(path=${ID})}" th:object="${wishlistDTO}" method="post">
+    <h1>Update a wishlist!</h1>
+    <form th:action="@{/user/{path}/wishlist/{path2}/update(path=${uid},path2=${WID})}" th:object="${wishlistDTO}" method="post">
         <fieldset>
             <label for="title">Title</label>
             <input id="title" th:field="*{wishlistTitle}" th:value="${wishlistDTO.getWishlistTitle()}" required>
@@ -22,9 +22,18 @@
             <fieldset>
                 <legend>Update Products</legend>
                 <div th:each="product, iter : ${allProducts}">
-                    <input type="checkbox" th:id="'product-' + ${product.getID()}" th:value="${product.getID()}" th:text="${product.getTitle()}" th:field="*{productIDs}" th:checked="${wishlistDTO.getProductIDs().contains(product.getID())}">
-                    <label for="description">Description</label>
-                    <input id="description" type="text" th:field="*{productDescriptions}" th:value="${wishlistDTO.productDescriptions.size() > iter.index ? wishlistDTO.productDescriptions[iter.index] : ' '}" required>
+                    <input type="checkbox"
+                           th:id="'product-' + ${product.getID()}"
+                           th:value="${product.getID()}"
+                           th:text="${product.getTitle()}"
+                           th:field="*{productIDs}"
+                           th:checked="${wishlistDTO.getProductIDs().contains(product.getID())}">
+
+                    <label th:for="'description-' + ${iter.index}">Description</label>
+                    <input type="text"
+                           th:id="'description-' + ${iter.index}"
+                           th:name="'productDescriptions[' + ${iter.index} + ']'"
+                           th:value="${wishlistDTO.productDescriptions.size() > iter.index ? wishlistDTO.productDescriptions[iter.index] : ''}">
                 </div>
             </fieldset>
 

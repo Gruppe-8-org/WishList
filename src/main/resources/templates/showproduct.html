@@ -8,7 +8,7 @@
 
 <body>
 
-<div th:replace="~{fragments/header :: header}"></div>
+<!--<div th:replace="~{fragments/header :: header}"></div>-->
 
 <main>
   <h2>Information</h2>
@@ -28,15 +28,19 @@
       <td th:text="${productByID.price}"></td>
       <td th:text="${productByID.pathToImage}"></td>
 
-      <td><a th:href="@{'/products/' + ${productByID.ID} + '/update'}">Update Wishlist</a></td>
-      <td><a th:href="@{'/products/' + ${productByID.ID} + '/delete'}">Delete Wishlist</a></td>
+      <td><a th:href="@{'/user/products/' + ${productByID.ID} + '/update'}">Update Product</a></td>
     </tr>
     </tbody>
   </table>
-  <a th:href="'/products/'">Return to Overview of Products</a>
+  <form th:action="@{/user/products/{id}/delete(id=${productByID.ID})}" method="post">
+    <button type="submit">Delete Product</button>
+  </form>
+
+
+  <a th:href="'/user/products'">Return to Overview of Products</a>
 </main>
 
-<div th:replace="~{fragments/footer :: footer}"></div>
+<!--<div th:replace="~{fragments/footer :: footer}"></div>-->
 
 </body>
 </html>

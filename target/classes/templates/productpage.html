@@ -7,7 +7,7 @@
 </head>
 <body>
 
-<div th:replace="~{fragments/header :: header}"></div>
+<!--<div th:replace="~{fragments/header :: header}"></div>-->
 
 <main>
     <h1>Available Products</h1>
@@ -27,17 +27,17 @@
             <td th:text="${product.price}"></td>
             <td th:text="${product.pathToImage}"></td>
 
-            <td><a th:href="@{'/products/' + ${product.ID}}">Check Product</a></td>
-            <td><a th:href="@{'/products/' + ${product.ID} + '/update'}">Update Product</a></td>
-            <td><a th:href="@{'/products/' + ${product.ID} + '/delete'}">Delete Product</a></td>
+            <td><a th:href="@{'/user/products/' + ${product.ID}}">Check Product</a></td>
+            <td><a th:href="@{'/user/products/' + ${product.ID} + '/update'}">Update Product</a></td>
         </tr>
         </tbody>
     </table>
-    <a th:href="@{'/products/add'}">Add Product</a>
+
+    <a th:href="@{'/user/products/add'}">Add Product</a>
     <a href="/">Log out</a>
 </main>
 
-<div th:replace="~{fragments/footer :: footer}"></div>
+<!--<div th:replace="~{fragments/footer :: footer}"></div>-->
 
 </body>
 </html>

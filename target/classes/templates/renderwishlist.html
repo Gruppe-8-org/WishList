@@ -6,13 +6,16 @@
   <title th:text="${wishlist.title}"></title>
 </head>
 
-<h1 th:text="Dato for begivenhed + ${wishlist.heldOn}"></h1>
-
 <body>
 
-<div th:replace="~{fragments/header :: header}"></div>
+<!--<div th:replace="~{fragments/header :: header}"></div>-->
 
 <main>
+  <section class="wishlist-header">
+    <h1 th:text="${wishlist.title}"></h1>
+    <p><strong>Event Date:</strong> <span th:text="${wishlist.heldOn}"></span></p>
+  </section>
+
   <h2>Products</h2>
   <table>
     <thead>
@@ -20,23 +23,27 @@
       <th>Title</th>
       <th>Manufacturer</th>
       <th>Price</th>
+      <th>Description</th>
+      <th colspan="2">Actions</th>
     </tr>
     </thead>
     <tbody>
-    <tr th:each="wishlistproduct: ${wishlistproducts}">
-      <td th:text="${wishlistproduct.title}"></td>
-      <td th:text="${wishlistproduct.manufacturer}"></td>
-      <td th:text="${wishlistproduct.price}"></td>
+    <tr th:each="wishlistproduct: ${products}">
+      <td th:text="${wishlistproduct.product.title}"></td>
+      <td th:text="${wishlistproduct.product.manufacturer}"></td>
+      <td th:text="${wishlistproduct.product.price}"></td>
+      <td th:text="${wishlistproduct.description}"></td>
 
-      <td><a th:href="@{'/user/' + ${user.id} + '/wishlist/' + ${wishlist.id} + '/update'}">Update Wishlist</a></td>
-      <td><a th:href="@{'/user/' + ${user.id} + '/wishlist/' + ${wishlist.id} + '/delete'}">Delete Wishlist</a></td>
+      <td><a th:href="@{'/user/' + ${UID} + '/wishlist/' + ${WID} + '/update'}">Update</a></td>
+      <td><a th:href="@{'/user/' + ${UID} + '/wishlist/' + ${WID} + '/delete'}">Delete</a></td>
     </tr>
     </tbody>
   </table>
-  <a th:href="'/user/' + ${user.id}">Return to User Profile</a>
+
+  <a th:href="'/user/' + ${UID}">Return to User Profile</a>
 </main>
 
-<div th:replace="~{fragments/footer :: footer}"></div>
+<!--<div th:replace="~{fragments/footer :: footer}"></div>-->
 
 </body>
 </html>

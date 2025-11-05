@@ -40,6 +40,8 @@ public class ProductRepository {
         return jdbcTemplate.query("SELECT * FROM Products LEFT JOIN WishlistProducts ON Products.ProductID = WishlistProducts.ProductID ;", wishlistProductRowMapper);
     }
 
+
+
     public int updateProduct(Product product) {
         return jdbcTemplate.update("UPDATE Products SET ProductTitle = ?, ProductPrice = ?, ProductManufacturer = ?, ProductPathToImage = ? WHERE ProductID = ?;",
                 product.getTitle(), product.getPrice(), product.getManufacturer(), product.getPathToImage(), product.getID());

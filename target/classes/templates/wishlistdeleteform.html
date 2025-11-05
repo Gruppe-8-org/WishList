@@ -7,18 +7,18 @@
 </head>
 <body>
 
-<div th:replace="~{fragments/header :: header}"></div>
+<!--<div th:replace="~{fragments/header :: header}"></div>-->
 
 <main>
-    <form th:action="@{'/user/' + ${user.id} + '/' + ${deleteWishlist.ID} '/delete'}" th:object="${deleteWishlist}"  method="post">
+    <form th:action="@{/user/{path}/wishlist/{path2}/delete(path=${UID},path2=${deleteWishlist.ID})}" th:object="${deleteWishlist}"  method="post">
         <h1 th:text="${deleteWishlist.title}"></h1>
         <h2 th:text="${deleteWishlist.heldOn}"></h2>
         <button type="submit">Confirm Deletion</button>
-        <a th:href="@{'/user/' + ${user.id}}">Cancel Deletion</a>
+        <a th:href="@{'/user/' + ${UID}}">Cancel Deletion</a>
     </form>
 </main>
 
-<div th:replace="~{fragments/footer :: footer}"></div>
+<!--<div th:replace="~{fragments/footer :: footer}"></div>-->
 
 </body>
 </html>

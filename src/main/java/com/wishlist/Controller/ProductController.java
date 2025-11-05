@@ -1,11 +1,7 @@
 package com.wishlist.Controller;
 
 import com.wishlist.Model.Product;
-import com.wishlist.Model.User;
-import com.wishlist.Model.Wishlist;
-import com.wishlist.Model.WishlistProduct;
 import com.wishlist.Service.ProductService;
-import com.wishlist.Service.WishlistService;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,7 +11,7 @@ import java.util.List;
 
 
 @Controller
-@RequestMapping("/")
+@RequestMapping("/user")
 @ComponentScan("com.wishlist.Service")
 public class ProductController {
     private final ProductService productService;
@@ -50,25 +46,34 @@ public class ProductController {
     @PostMapping("/products/add")
     public String addProduct (@ModelAttribute Product newProduct) {
         productService.addProduct(newProduct);
-        return "redirect:/products";
+        return "redirect:/user/products";
     }
 
     @GetMapping("/products/{id}/update")
     public String updateProduct (Model model, @PathVariable int id) {
         Product updateProduct = productService.getProductByID(id);
-        model.addAttribute("updateProduct", updateProduct);
+
+        Product productDTO = new Product();
+        productDTO.setTitle(updateProduct.getTitle());
+        productDTO.setManufacturer(updateProduct.getManufacturer());
+        productDTO.setPrice(updateProduct.getPrice());
+        productDTO.setPathToImage(updateProduct.getPathToImage());
+
+        model.addAttribute("ID", id);
+        model.addAttribute("productDTO", productDTO);
         return "update-product";
     }
 
-    @PostMapping("products/{id}/update")
-    public String updateProduct (@ModelAttribute Product updateProduct) {
+    @PostMapping("/products/{id}/update")
+    public String updateProduct (@ModelAttribute Product productDTO, @PathVariable int id) {
+        Product updateProduct = new Product(id, productDTO.getTitle(), productDTO.getManufacturer(), productDTO.getPathToImage(), productDTO.getPrice());
         productService.updateProduct(updateProduct);
-        return "redirect:/products";
+        return "redirect:/user/products";
     }
 
-    @PostMapping("products/{id}/delete")
+    @PostMapping("/products/{id}/delete")
     public String deleteProduct (@PathVariable int id) {
         productService.deleteProductByID(id);
-        return "redirect:/products";
+        return "redirect:/user/products";
     }
 }

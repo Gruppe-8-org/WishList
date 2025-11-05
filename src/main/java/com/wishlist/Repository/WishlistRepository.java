@@ -40,28 +40,35 @@ public class WishlistRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection
-                    .prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setInt(1, wishlist.getAuthorID());
             ps.setString(2, wishlist.getTitle());
-            ps.setDate(3, java.sql.Date.valueOf(wishlist.getHeldOn().toString()));
+            ps.setDate(3, java.sql.Date.valueOf(wishlist.getHeldOn()));
             return ps;
         }, keyHolder);
 
+        Number wishlistIdNum = keyHolder.getKey();
+        if (wishlistIdNum == null) throw new RuntimeException("Failed to get Wishlist ID");
+        int wishlistId = wishlistIdNum.intValue();
+
         for (WishlistProduct wp : wishlist.getProducts()) {
             Product theProduct = wp.getProduct();
-            jdbcTemplate.update("INSERT IGNORE INTO Products (ProductID, ProductTitle, ProductPrice, ProductManufacturer, ProductPathToImage) VALUES (?, ?, ?, ?, ?);",
-                    theProduct.getID(), theProduct.getTitle(), theProduct.getPrice(), theProduct.getManufacturer(), theProduct.getPathToImage());
+            jdbcTemplate.update(
+                    "INSERT IGNORE INTO Products (ProductID, ProductTitle, ProductPrice, ProductManufacturer, ProductPathToImage) VALUES (?, ?, ?, ?, ?);",
+                    theProduct.getID(), theProduct.getTitle(), theProduct.getPrice(), theProduct.getManufacturer(), theProduct.getPathToImage()
+            );
 
-            jdbcTemplate.update("INSERT INTO WishlistProducts (WishlistID, ProductID, Description, ReservedBy) VALUES (?, ?, ?, ?);",
-                    keyHolder.getKey(), theProduct.getID(), wp.getDescription(), wp.getReserverID() == 0 ? null : wp.getReserverID());
+            jdbcTemplate.update(
+                    "INSERT INTO WishlistProducts (WishlistID, ProductID, Description, ReservedBy) VALUES (?, ?, ?, ?);",
+                    wishlistId, theProduct.getID(), wp.getDescription(), wp.getReserverID() == 0 ? null : wp.getReserverID()
+            );
         }
 
         for (User user : guests) {
-            jdbcTemplate.update("INSERT INTO WishlistGuests (WishlistID, UserID) VALUES (?, ?);",
-                    keyHolder.getKey(), user.getID());
+            jdbcTemplate.update("INSERT INTO WishlistGuests (WishlistID, UserID) VALUES (?, ?);", wishlistId, user.getID());
         }
     }
+
 
     @Transactional
     public void updateWishlist(Wishlist editedWishlist, List<User> guests) {
